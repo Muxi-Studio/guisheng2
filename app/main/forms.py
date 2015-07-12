@@ -1,4 +1,6 @@
-<<<<<<< HEAD
+# -*- coding: UTF-8 -*-
+# !/usr/bin/python
+
 from flask.ext.wtf import Form
 from wtforms import StringField, TextAreaField, BooleanField, SelectField,\
     SubmitField
@@ -7,18 +9,15 @@ from wtforms import ValidationError
 from flask.ext.pagedown.fields import PageDownField
 from ..models import Role, User
 
-
 class NameForm(Form):
     name = StringField('What is your name?', validators=[Required()])
     submit = SubmitField('Submit')
-
 
 class EditProfileForm(Form):
     name = StringField('Real name', validators=[Length(0, 64)])
     location = StringField('Location', validators=[Length(0, 64)])
     about_me = TextAreaField('About me')
     submit = SubmitField('Submit')
-
 
 class EditProfileAdminForm(Form):
     email = StringField('Email', validators=[Required(), Length(1, 64),
@@ -50,7 +49,6 @@ class EditProfileAdminForm(Form):
                 User.query.filter_by(username=field.data).first():
             raise ValidationError('Username already in use.')
 
-
 class PostForm(Form):
     body = PageDownField("What's on your mind?", validators=[Required()])
     submit = SubmitField('Submit')
@@ -59,13 +57,3 @@ class PostForm(Form):
 class CommentForm(Form):
     body = StringField('Enter your comment', validators=[Required()])
     submit = SubmitField('Submit')
-=======
-# -*- coding: UTF-8 -*- 
-#!/usr/bin/python
-from flask.ext.wtf import Form
-from wtforms import SubmitField,StringField
-from wtforms.validators import Required
-
-#class PostForm(Form):
-	
->>>>>>> 812ef9225c453d817622a7df6aa9786b7e2a9b77
