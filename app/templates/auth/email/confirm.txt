@@ -1,0 +1,14 @@
+Dear {{ user.username }},
+
+欢迎来到桂声后台!
+
+请点击以下链接确认你的账户:
+
+{{ url_for('auth.confirm', token=token, _external=True) }},
+
+快乐的...
+
+桂声团队！
+
+注: 有什么疑问可以告诉我哦！
+
