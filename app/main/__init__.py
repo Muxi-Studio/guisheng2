@@ -1,9 +1,15 @@
 # -*- coding:UTF-8 -*-
 # !/usr/bin/python
-
+"""
+    __init__.py
+    ~~~~~~~~~~~
+        初始化文件
+        １．蓝图注册
+        ２．模块导入
+"""
 from flask import Blueprint
 
-main = Blueprint('main', __name__,static_folder="/root/www/guisheng2/app/static")
+main = Blueprint('main', __name__,static_folder="/root/www/guisheng2/app/static") # static_folder: 静态文件存储目录
 
 from . import views, errors
 from ..models import Permission

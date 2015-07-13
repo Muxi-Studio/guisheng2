@@ -1,58 +1,66 @@
-# -*- coding: UTF-8 -*- 
+# -*- coding: UTF-8 -*-
 #!/usr/bin/python
+"""
+	views.py
+	~~~~~~~~~
+		桂声app后台视图函数文件
+		后台功能实现
+"""
 import os
 import re
 import json
 import random
 import urllib
-
 from datetime import datetime
-from flask import render_template,url_for,session,redirect,request,make_response,abort,flash,current_app
-from flask.ext.login import login_required,current_user
+from flask import render_template, url_for, session, redirect, request, make_response, abort, flash, current_app
+from flask.ext.login import login_required, current_user
 from . import main
 from .forms import PostForm
 from .. import db
-from ..models import User,Permission, Role, NewsPost,OriginsPost,IntersPost,NewsComment, OriginsComment, IntersComment
-from app import gen_rnd_filename
+from ..models import User, Permission, Role, NewsPost, OriginsPost, IntersPost, NewsComment, OriginsComment, IntersComment
+from app import gen_rnd_filename # 随机文件命名
 
 @main.route('/',methods=['GET','POST'])
 def index():
+	"""url:/  func: 主页面（实现一些统计之类的东东）"""
 	return render_template("index.html")
 
 @main.route("/news",methods=['GET','POST'])
 def news():
+	"""url:/news  func: 新闻编辑页面（实现数据的上传）"""
     form = PostForm()
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
-        post = NewsPost(body=form.body.data,author=current_user._get_current_object())
-        db.session.add(post)
+        post = NewsPost(body=form.body.data, author=current_user._get_current_object())
+        db.session.add(post) # 提交数据库？
         return redirect(url_for(".index"))
 
     posts = NewsPost.query.order_by(NewsPost.timestamp.desc()).all()
-    return render_template('edit.html',form=form,posts=posts)
+    return render_template('edit.html', form=form, posts=posts)
 
 @main.route("/origins",methods=['GET','POST'])
-def origin():
+def origins():
     form = PostForm()
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
-		post = OriginPost(body=form.body.data,author=current_user._get_current_object())
+		post = OriginsPost(body=form.body.data, author=current_user._get_current_object())
 		db.session.add(post)
 		return redirect(url_for(".index"))
 
-    posts = OriginPost.query.order_by(OriginPost.timestamp.desc()).all()
-    return render_template("edit.html",form=form,posts=posts)
-"""
-@main.route("/zonghe",methods=['GET','POST'])
-#    form = PostForm()
+    posts = OriginsPost.query.order_by(OriginsPost.timestamp.desc()).all()
+    return render_template("edit.html", form=form, posts=posts)
+
+@main.route("/inters",methods=['GET','POST'])
+    form = PostForm()
 	if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
-	    post = ZonghePost(body=form.body.data,author=current_user._get_current_object())
+	    post = IntersPost(body=form.body.data, author=current_user._get_current_object())
 	    db.session.add(post)
 	    return redirect(url_for(".index"))
-    posts = ZonghePost.query.order_by(Post.timestamp.desc()).all()
-    return render_template("edit.html",form=form,posts=posts)
-"""
+
+    posts = IntersPost.query.order_by(IntersPost.timestamp.desc()).all()
+    return render_template("edit.html", form=form, posts=posts)
+
 @main.route("/ckupload/",methods=['OPTIONS','POST'])
 def ckupload():
-	"""CKEditor file upload"""
+	"""集成CKEditor编辑器"""
 	error = ''
 	url = ''
 	callback = request.args.get("CKEditorFuncNum")
