@@ -27,7 +27,7 @@ class Config:
     MAIL_PORT = 25
     MAIL_USE_TLS = True
     MAIL_USERNAME = 'webwebpy@163.com'
-    MAIL_PASSWORD = 'ZCH411zch'
+    MAIL_PASSWORD = '**********'
     FLASKY_MAIL_SUBJECT_PREFIX = '[快乐的桂声后台]'
     FLASKY_MAIL_SENDER = '桂声管理员 <webwebpy@163.com>'
     FLASKY_ADMIN = 'webwebpy@163.com'
