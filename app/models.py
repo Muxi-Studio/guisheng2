@@ -285,7 +285,7 @@ class NewsPost(db.Model):
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime,index=True,default=datetime.utcnow)
     author_id = db.Column(db.Integer,db.ForeignKey("users.id"))
-    comments = db.relationship("NewsComment",backref="news", lazy="dynamic")# backref的值待定(评论在这里比较特殊)
+    comments = db.relationship("NewsComment", backref="news", lazy="dynamic") # backref的值待定(评论在这里比较特殊)
 
     @staticmethod
     def generate_fake(count=100):
@@ -328,7 +328,7 @@ class NewsPost(db.Model):
             'title': self.title,
             'body': self.body,
             'body_html': self.body_html,
-            'author': url_for("api.get_user",id=self.author_id,_external=True),
+            'author': url_for("api.get_user", id=self.author_id, _external=True),
             'comments': url_for("api.get_news_comments", id=self.id, _external=True),
             'timestamp': self.timestamp
         }

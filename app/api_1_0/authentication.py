@@ -15,6 +15,7 @@ auth = HTTPBasicAuth()
 
 @auth.verify_password
 def verify_password(email_or_token, password):
+    """验证回调函数(可选：邮件或者令牌)"""
     if email_or_token == '':
         g.current_user = AnonymousUser()
         return True
@@ -41,6 +42,7 @@ def before_request():
 
 @api.route('/token')
 def get_token():
+    """把认证令牌发送给客户端"""
     if g.current_user.is_anonymous() or g.token_used:
         return unauthorized('Invalid credentials')
-    return jsonify({'token': g.current_user.generate_auth_token(expiration=3600), 'expiration': 3600})
+    return jsonify({'token': g.current_user.generate_auth_token(expiration=3600), 'expiration': 3600}) # 令牌的过期时间是3600s

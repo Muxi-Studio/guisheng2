@@ -3,7 +3,8 @@
 """
     errors.py
     ~~~~~~~~~
-    api 错误处理文件
+    api 错误处理文
+    视图函数的辅助错误处理: 错误信息的响应
 """
 from flask import jsonify
 from app.exceptions import ValidationError
