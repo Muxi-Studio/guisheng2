@@ -1,51 +1,58 @@
+# coding: UTF-8
+# !/usr/bin/python
+"""
+    test_user_model.py
+    ~~~~~~~~~~~~~~~~~~
+
+        测试用户模型
+"""
 import unittest
-<<<<<<< HEAD
 import time
 from datetime import datetime
 from app import create_app, db
 from app.models import User, AnonymousUser, Role, Permission
-=======
-from app import create_app, db
-from app.models import User
->>>>>>> 812ef9225c453d817622a7df6aa9786b7e2a9b77
-
 
 class UserModelTestCase(unittest.TestCase):
     def setUp(self):
+        """
+        创建测试实例、程序上下文、数据库
+        添加 Role 角色
+        """
         self.app = create_app('testing')
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
-<<<<<<< HEAD
         Role.insert_roles()
-=======
->>>>>>> 812ef9225c453d817622a7df6aa9786b7e2a9b77
 
     def tearDown(self):
+        """销毁楼上的一切"""
         db.session.remove()
         db.drop_all()
         self.app_context.pop()
 
     def test_password_setter(self):
+        """测试：确定密码可以转化为散列值"""
         u = User(password='cat')
         self.assertTrue(u.password_hash is not None)
 
     def test_no_password_getter(self):
+        """测试：确定密码不可读"""
         u = User(password='cat')
         with self.assertRaises(AttributeError):
             u.password
 
     def test_password_verification(self):
+        """测试：密码与散列值的比对"""
         u = User(password='cat')
         self.assertTrue(u.verify_password('cat'))
         self.assertFalse(u.verify_password('dog'))
 
     def test_password_salts_are_random(self):
+        """测试：密码散列值是否随机"""
         u = User(password='cat')
         u2 = User(password='cat')
         self.assertTrue(u.password_hash != u2.password_hash)
-<<<<<<< HEAD
-
+"""
     def test_valid_confirmation_token(self):
         u = User(password='cat')
         db.session.add(u)
@@ -196,5 +203,4 @@ class UserModelTestCase(unittest.TestCase):
         db.session.delete(u2)
         db.session.commit()
         self.assertTrue(Follow.query.count() == 1)
-=======
->>>>>>> 812ef9225c453d817622a7df6aa9786b7e2a9b77
+"""

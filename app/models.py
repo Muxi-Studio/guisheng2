@@ -108,14 +108,11 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(64), unique=True, index=True)
     username = db.Column(db.String(64), unique=True, index=True)
-    # avatar() = db.Column(pass)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    password_hash = db.Column(db.String(128))  # password 是绝对不允许以明文的形式存储在数据库中的
-    # posts = db.relationship('Post',backref="author",lazy="dynamic")
+    password_hash = db.Column(db.String(128))
     news = db.relationship('NewsPost', backref="author", lazy="dynamic")
     origins = db.relationship("OriginsPost", backref="author", lazy="dynamic")
     inters = db.relationship("IntersPost", backref="author", lazy="dynamic")
-    # comment
     news_comment = db.relationship('NewsComment', backref="author", lazy="dynamic")
     origins_comment = db.relationship('OriginsComment', backref="author", lazy="dynamic")
     inters_comment = db.relationship('IntersComment', backref="author", lazy="dynamic")
@@ -149,18 +146,21 @@ class User(UserMixin, db.Model):
                 self.role = Role.query.filter_by(permissions=0xff).first()
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
-# ***********************************************************************
-    # 方便实例调用(属性比函数更直观)
 
-    @property  # python属性装饰器 将password编程属性
+    # 设定 password 为只写属性
+    @property
     def password(self):
-        raise AttributeError('密码字符出错啦')
+        """password是只写属性，只能被转化为散列值,所以试图读取password时就会报错!"""
+        raise AttributeError('已加密，不是可读形式!')
 
     @password.setter  # @property生成setter装饰器,限定password
     def password(self, password):
         """
         对密码进行hash加密,加密的过程是单向的,用户输入得到相同的结果与数据库进行比对
-            每当一个user新建时调用该函数
+        每当一个user新建时调用该函数
+
+        generate_password_hash(password, method=pbkdf2:sha1, salt_length=8)
+        将用户的密码作为输入值，通过 method　传递回密码散列值的字符串形式
         """
         self.password_hash = generate_password_hash(password)
 
@@ -168,9 +168,11 @@ class User(UserMixin, db.Model):
         """
         验证密码
             每当需要验证密码的时候调用该函数
+
+        check_password_hash(hash, password)
+        将密码散列值 与　用户输入密码比对
         """
         return check_password_hash(self.password_hash, password)
-# **********************************************************************
 
     def generate_email_change_token(self, new_email, expiration=3600):
         s = Serializer(current_app.config['SECRET_KEY'], expiration)

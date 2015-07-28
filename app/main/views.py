@@ -20,10 +20,15 @@ from .. import db
 from ..models import User, Permission, Role, NewsPost, OriginsPost, IntersPost, NewsComment, OriginsComment, IntersComment
 from app import gen_rnd_filename # 随机文件命名
 
+
 @main.route('/',methods=['GET','POST'])
 def index():
-	"""url:/  func: 主页面（实现一些统计之类的东东）"""
+	"""url='/', 实现功能如下:
+	   1. 发布文章统计：依据时间排序
+	   2. 边栏统计发布文章最多的编辑"""
+
 	return render_template("index.html")
+
 
 @main.route("/news",methods=['GET','POST'])
 def news():
