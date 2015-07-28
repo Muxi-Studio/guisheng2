@@ -27,7 +27,7 @@ def index():
 
 @main.route("/news",methods=['GET','POST'])
 def news():
-	"""url:/news  func: 新闻编辑页面（实现数据的上传）"""
+    """url:/news  func: 新闻编辑页面（实现数据的上传）"""
     form = PostForm()
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
         post = NewsPost(body=form.body.data, author=current_user._get_current_object())
@@ -48,9 +48,11 @@ def origins():
     posts = OriginsPost.query.order_by(OriginsPost.timestamp.desc()).all()
     return render_template("edit.html", form=form, posts=posts)
 
-@main.route("/inters",methods=['GET','POST'])
+
+@main.route('/inters', methods=['GET', 'POST'])
+def inters():
     form = PostForm()
-	if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
+    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
 	    post = IntersPost(body=form.body.data, author=current_user._get_current_object())
 	    db.session.add(post)
 	    return redirect(url_for(".index"))

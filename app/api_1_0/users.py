@@ -13,11 +13,13 @@ from flask import jsonify, request, current_app, url_for
 from . import api
 from ..models import User, NewsPost, OriginsPost, IntersPost
 
+
 @api.route('/users/<int:id>')
 def get_user(id):
     """获取特定id用户的信息"""
     user = User.query.get_or_404(id)
     return jsonify(user.to_json())
+
 
 # ----- 特定对作者 ------
 @api.route('/users/<int:id>/news/')
@@ -43,6 +45,7 @@ def get_user_news(id):
         'count': pagination.total
     })
 
+
 @api.route('/users/<int:id>/origins/')
 def get_user_origins(id):
     """获取特定作者发布的原创文章集合"""
@@ -60,11 +63,12 @@ def get_user_origins(id):
     if pagination.has_next:
         next = url_for('api.get_origins', page=page+1, _external=True)
     return jsonify({
-        'origins': [post.to_json() for post in origin],
+        'origins': [post.to_json() for post in origins],
         'prev': prev,
         'next': next,
         'count': pagination.total
 	})
+
 
 @api.route('/users/<int:id>/inters/')
 def get_user_inters(id):
@@ -83,7 +87,7 @@ def get_user_inters(id):
     if pagination.has_next:
         next = url_for('api.get_inters', page=page+1, _external=True)
     return jsonify({
-        'inters': [post.to_json() for post in zonghe],
+        'inters': [post.to_json() for post in inters],
         'prev': prev,
         'next': next,
         'count': pagination.total

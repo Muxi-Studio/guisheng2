@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-#!/usr/bin/python
+# !/usr/bin/python
 
 """
     models.py
@@ -13,13 +13,13 @@
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from flask import current_app, request, url_for
+from flask import current_app, url_for
 from flask.ext.login import UserMixin, AnonymousUserMixin
 from . import db, login_manager
 from markdown import markdown
 from app.exceptions import ValidationError
-import hashlib
 import bleach
+
 
 class Permission:
     """
@@ -55,7 +55,7 @@ class Role(db.Model):
     permissions = db.Column(db.Integer)
     users = db.relationship('User', backref='role', lazy='dynamic')
 
-    @staticmethod # 静态方法,可以被类直接调用
+    @staticmethod  # 静态方法,可以被类直接调用
     def insert_roles():
         """
         插入角色
@@ -79,9 +79,10 @@ class Role(db.Model):
                 role = Role(name=r)
             role.permissions = roles[r][0]
             role.default = roles[r][1]
-            db.session.add(role) # 添加进数据库
-        db.session.commit() # 提交
+            db.session.add(role)  # 添加进数据库
+        db.session.commit()  # 提交
 # ****************************************************************
+
     def __repr__(self):
         """该类的'官方'表示方法"""
         return '<Role %r>' % self.name
@@ -109,15 +110,15 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True, index=True)
     # avatar() = db.Column(pass)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    password_hash = db.Column(db.String(128)) # password 是绝对不允许以明文的形式存储在数据库中的
+    password_hash = db.Column(db.String(128))  # password 是绝对不允许以明文的形式存储在数据库中的
     # posts = db.relationship('Post',backref="author",lazy="dynamic")
-    news = db.relationship('NewsPost',backref="author",lazy="dynamic")
-    origins = db.relationship("OriginsPost",backref="author",lazy="dynamic")
-    inters = db.relationship("IntersPost",backref="author",lazy="dynamic")
+    news = db.relationship('NewsPost', backref="author", lazy="dynamic")
+    origins = db.relationship("OriginsPost", backref="author", lazy="dynamic")
+    inters = db.relationship("IntersPost", backref="author", lazy="dynamic")
     # comment
-    news_comment = db.relationship('NewsComment',backref="author",lazy="dynamic")
-    origins_comment = db.relationship('OriginsComment',backref="author",lazy="dynamic")
-    inters_comment = db.relationship('IntersComment',backref="author",lazy="dynamic")
+    news_comment = db.relationship('NewsComment', backref="author", lazy="dynamic")
+    origins_comment = db.relationship('OriginsComment', backref="author", lazy="dynamic")
+    inters_comment = db.relationship('IntersComment', backref="author", lazy="dynamic")
 
     @staticmethod
     def generate_fake(count=100):
@@ -148,13 +149,14 @@ class User(UserMixin, db.Model):
                 self.role = Role.query.filter_by(permissions=0xff).first()
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
-#***********************************************************************
+# ***********************************************************************
     # 方便实例调用(属性比函数更直观)
-    @property # python属性装饰器 将password编程属性
+
+    @property  # python属性装饰器 将password编程属性
     def password(self):
         raise AttributeError('密码字符出错啦')
 
-    @password.setter# @property生成setter装饰器,限定password
+    @password.setter  # @property生成setter装饰器,限定password
     def password(self, password):
         """
         对密码进行hash加密,加密的过程是单向的,用户输入得到相同的结果与数据库进行比对
@@ -169,6 +171,7 @@ class User(UserMixin, db.Model):
         """
         return check_password_hash(self.password_hash, password)
 # **********************************************************************
+
     def generate_email_change_token(self, new_email, expiration=3600):
         s = Serializer(current_app.config['SECRET_KEY'], expiration)
         return s.dumps({'change_email': self.id, 'new_email': new_email})
@@ -213,14 +216,14 @@ class User(UserMixin, db.Model):
             'url': url_for('api.get_news', id=self.id, _external=True),
             'username': self.username,
             'email': self.email,
-            'last_seen': self.last_seen, # 可选
             'news': url_for('api.get_user_news', id=self.id, _external=True),
-            'origins': url_for('api.get_user_origins',id=self.id, _external=True),
-            'inters': url_for('api.get_user_inters',id=self.id, _external=True),
+            'origins': url_for('api.get_user_origins', id=self.id, _external=True),
+            'inters': url_for('api.get_user_inters', id=self.id, _external=True),
             'news_comment': url_for('api.get_user_news_comment', id=self.id, _external=True),
-            'origins_comment': url_for("api.get_user_origins_comment", id=self.id, _external= True),
+            'origins_comment': url_for("api.get_user_origins_comment", id=self.id, _external=True),
             'inters_comment': url_for("api.get_user_inters_comment", id=self.id, _external=True)
         }
+        return json_user
 
     """
     token(令牌)是一种验证方式(一般和用户信息相关),他有寿命，我们只需在生成用户和密码时生成一个token和寿命期限,
@@ -229,20 +232,20 @@ class User(UserMixin, db.Model):
     def generate_auth_token(self, expiration):
         """用用户的id生成token"""
         s = Serializer(
-                current_app.config["SECRET_KEY"],
-                expires_in=expiration # token的寿命
-            )
-        return s.dumps({'id':self.id}).decode('ascii') # 去除ascii码,保存数据
+            current_app.config["SECRET_KEY"],
+            expires_in=expiration  # token的寿命
+        )
+        return s.dumps({'id': self.id}).decode('ascii')  # 去除ascii码,保存数据
 
     @staticmethod
     def verify_auth_token(token):
         """验证token"""
         s = Serializer(current_app.config["SECRET_KEY"])
         try:
-            data = s.loads(token) # 尝试加载token
+            data = s.loads(token)  # 尝试加载token
         except:
             return None
-        return User.query.get(data[id]) #User 是一个数据,query就是数据库查询函数
+        return User.query.get(data[id])  # User 是一个数据,query就是数据库查询函数
 
     def __repr__(self):
         """User类的官方字符串显示"""
@@ -260,10 +263,12 @@ class AnonymousUser(AnonymousUserMixin):
     def can(self, permissions):
         return False
 # ***************************************
+
     def is_administrator(self):
         return False
 
 login_manager.anonymous_user = AnonymousUser
+
 
 class NewsPost(db.Model):
     """
@@ -279,13 +284,13 @@ class NewsPost(db.Model):
             comments: 属性 新闻文章的评论
     """
     __tablename__ = "news"
-    id = db.Column(db.Integer,primary_key=True)
-    title = db.Column(db.String(64))# 给了很大的空间(汉子占用字节大)
-    body_html = db.Column()
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(64))  # 给了很大的空间(汉子占用字节大)
+    body_html = db.Column(db.Text)
     body = db.Column(db.Text)
-    timestamp = db.Column(db.DateTime,index=True,default=datetime.utcnow)
-    author_id = db.Column(db.Integer,db.ForeignKey("users.id"))
-    comments = db.relationship("NewsComment", backref="news", lazy="dynamic") # backref的值待定(评论在这里比较特殊)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    comments = db.relationship("NewsComment", backref="news", lazy="dynamic")  # backref的值待定(评论在这里比较特殊)
 
     @staticmethod
     def generate_fake(count=100):
@@ -298,9 +303,9 @@ class NewsPost(db.Model):
         for i in range(count):
             u = User.query.offset(randint(0, user_count - 1)).first()
             p = NewsPost(
-                    body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
-                    timestamp=forgery_py.date.date(True),
-                    author=u
+                body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
+                timestamp=forgery_py.date.date(True),
+                author=u
             )
             db.session.add(p)
             db.session.commit()
@@ -312,9 +317,9 @@ class NewsPost(db.Model):
         用户插入的一些html标签可能是不安全的
         """
         allowed_tags = [
-                'a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
-                'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
-                'h1', 'h2', 'h3','h4','h5','h6','p','br','img'
+            'a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+            'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'img'
         ]
         # 自动过滤其余标签
         target.body_html = bleach.linkify(bleach.clean(
@@ -324,7 +329,7 @@ class NewsPost(db.Model):
     def to_json(self):
         """json 格式的资源"""
         json_news = {
-            'url' : url_for("api.get_news", id=self.id, _external=True),
+            'url': url_for("api.get_news", id=self.id, _external=True),
             'title': self.title,
             'body': self.body,
             'body_html': self.body_html,
@@ -343,6 +348,7 @@ class NewsPost(db.Model):
 
 db.event.listen(NewsPost.body, 'set', NewsPost.on_changed_body)
 
+
 class OriginsPost(db.Model):
     """
         OriginsPost类
@@ -357,13 +363,13 @@ class OriginsPost(db.Model):
             comments: 属性 原创文章的评论
     """
     __tablename__ = "origins"
-    id = db.Column(db.Integer,primary_key=True)
-    title = db.Column(db.String(64))# 给了很大的空间(汉子占用字节大)
-    body_html = db.Column()
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(64))  # 给了很大的空间(汉子占用字节大)
+    body_html = db.Column(db.Text)
     body = db.Column(db.Text)
-    timestamp = db.Column(db.DateTime,index=True,default=datetime.utcnow)
-    author_id = db.Column(db.Integer,db.ForeignKey("users.id"))
-    comments = db.relationship("OriginsComment",backref="origins", lazy="dynamic")# backref的值待定(评论在这里比较特殊)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    comments = db.relationship("OriginsComment", backref="origins", lazy="dynamic")  # backref的值待定(评论在这里比较特殊)
 
     @staticmethod
     def generate_fake(count=100):
@@ -379,9 +385,9 @@ class OriginsPost(db.Model):
         for i in range(count):
             u = User.query.offset(randint(0, user_count - 1)).first()
             p = OriginsPost(
-                    body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
-                    timestamp=forgery_py.date.date(True),
-                    author=u
+                body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
+                timestamp=forgery_py.date.date(True),
+                author=u
             )
             db.session.add(p)
             db.session.commit()
@@ -395,7 +401,7 @@ class OriginsPost(db.Model):
         allowed_tags = [
             'a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
             'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
-            'h1', 'h2', 'h3','h4','h5','h6','p','br','img'
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'img'
         ]
         # 自动过滤其余标签
         target.body_html = bleach.linkify(bleach.clean(
@@ -405,16 +411,15 @@ class OriginsPost(db.Model):
     def to_json(self):
         """json 格式的资源"""
         json_origins = {
-            'url' : url_for("api.get_origins", id=self.id, _external=True),
+            'url': url_for("api.get_origins", id=self.id, _external=True),
             'title': self.title,
             'body': self.body,
             'body_html': self.body_html,
-            'author': url_for("api.get_user",id=self.author_id,_external=True),
+            'author': url_for("api.get_user", id=self.author_id, _external=True),
             'comments': url_for("api.get_origins_comments", id=self.id, _external=True),
             'timestamp': self.timestamp
         }
         return json_origins
-
 
     @staticmethod
     def from_json(json_origins):
@@ -440,13 +445,13 @@ class IntersPost(db.Model):
             comments: 属性 互动文章的评论
     """
     __tablename__ = "inters"
-    id = db.Column(db.Integer,primary_key=True)
-    title = db.Column(db.String(64))# 给了很大的空间(汉子占用字节大)
-    body_html = db.Column()
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(64))  # 给了很大的空间(汉子占用字节大)
+    body_html = db.Column(db.Text)
     body = db.Column(db.Text)
-    timestamp = db.Column(db.DateTime,index=True,default=datetime.utcnow)
-    author_id = db.Column(db.Integer,db.ForeignKey("users.id"))
-    comments = db.relationship("IntersComment",backref="inters", lazy="dynamic")# backref的值待定(评论在这里比较特殊)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    comments = db.relationship("IntersComment", backref="inters", lazy="dynamic")  # backref的值待定(评论在这里比较特殊)
 
     @staticmethod
     def generate_fake(count=100):
@@ -459,9 +464,9 @@ class IntersPost(db.Model):
         for i in range(count):
             u = User.query.offset(randint(0, user_count - 1)).first()
             p = IntersPost(
-                    body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
-                    timestamp=forgery_py.date.date(True),
-                    author=u
+                body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
+                timestamp=forgery_py.date.date(True),
+                author=u
             )
             db.session.add(p)
             db.session.commit()
@@ -475,7 +480,7 @@ class IntersPost(db.Model):
         allowed_tags = [
             'a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
             'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
-            'h1', 'h2', 'h3','h4','h5','h6','p','br','img'
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'img'
         ]
         # 自动过滤其余标签
         target.body_html = bleach.linkify(bleach.clean(
@@ -485,16 +490,15 @@ class IntersPost(db.Model):
     def to_json(self):
         """json 格式的资源"""
         json_inters = {
-            'url' : url_for("api.get_inters", id=self.id, _external=True),
+            'url': url_for("api.get_inters", id=self.id, _external=True),
             'title': self.title,
             'body': self.body,
             'body_html': self.body_html,
-            'author': url_for("api.get_user",id=self.author_id,_external=True),
+            'author': url_for("api.get_user", id=self.author_id, _external=True),
             'comments': url_for("api.get_inters_comments", id=self.id, _external=True),
             'timestamp': self.timestamp
         }
         return json_inters
-
 
     @staticmethod
     def from_json(json_inters):
@@ -524,7 +528,7 @@ class NewsComment(db.Model):
     body = db.Column(db.Text)
     body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    disabled = db.Column(db.Boolean) # ??:(
+    # disabled = db.Column(db.Boolean)  # ??:(
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     news_id = db.Column(db.Integer, db.ForeignKey('news.id'))
 
@@ -558,6 +562,7 @@ class NewsComment(db.Model):
 
 db.event.listen(NewsComment.body, 'set', NewsComment.on_changed_body)
 
+
 class OriginsComment(db.Model):
     """
     OriginsComment类:
@@ -576,7 +581,7 @@ class OriginsComment(db.Model):
     body = db.Column(db.Text)
     body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    disabled = db.Column(db.Boolean) # ??:(
+    # disabled = db.Column(db.Boolean)  # ??:(
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     news_id = db.Column(db.Integer, db.ForeignKey('origins.id'))
 
@@ -609,6 +614,7 @@ class OriginsComment(db.Model):
 
 db.event.listen(OriginsComment.body, 'set', OriginsComment.on_changed_body)
 
+
 class IntersComment(db.Model):
     """
     IntersComment类:
@@ -627,7 +633,7 @@ class IntersComment(db.Model):
     body = db.Column(db.Text)
     body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    disabled = db.Column(db.Boolean) # ??:(
+    # disabled = db.Column(db.Boolean)  # ??:(
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     news_id = db.Column(db.Integer, db.ForeignKey('inters.id'))
 
@@ -641,7 +647,7 @@ class IntersComment(db.Model):
             tags=allowed_tags, strip=True))
 
     def to_json(self):
-        json_newsComment = {
+        json_intersComment = {
             'url': url_for('api.get_intersComment', id=self.id, _external=True),
             'news': url_for('api.get_inters', id=self.news_id, _external=True),
             'body': self.body,

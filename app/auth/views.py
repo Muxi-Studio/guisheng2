@@ -36,8 +36,8 @@ def login():
 
 @login_required
 def logout():
-	logout_user()
-	flash("你已退出")
+    logout_user()
+    flash("你已退出")
     return redirect(url_for("main.index"))
 
 
@@ -48,16 +48,16 @@ def register():
         user = User(email=form.email.data,
                     username=form.username.data,
                     password=form.password.data)
-		db.session.add(user)
-		flash('注册成功，现在可以登陆了')
-		return redirect(url_for('auth.login'))
-		db.session.add(user)
-		db.session.commit()
-		token=user.generate_confirmation_token()
-		send_email(user.email,'请确认你的账户',
+        db.session.add(user)
+        flash('注册成功，现在可以登陆了')
+        return redirect(url_for('auth.login'))
+        db.session.add(user)
+        db.session.commit()
+        token=user.generate_confirmation_token()
+        send_email(user.email,'请确认你的账户',
                     'auth/email/confirm',user=user,token=token)
-		flash('确认账户的邮件已发送！')
-		return redirect(url_for('main.index'))
+        flash('确认账户的邮件已发送！')
+        return redirect(url_for('main.index'))
 	return render_template('auth/register.html',form=form)
 
 @auth.route('/confirm/<token>')

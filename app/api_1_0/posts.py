@@ -13,12 +13,13 @@
         4. put单个文章
         5. post文章集合
 """
-from flask import jsonify, request, g, abort, url_for, current_app
+from flask import jsonify, request, g, url_for, current_app
 from .. import db
 from ..models import NewsPost, OriginsPost, IntersPost, Permission
 from . import api
 from .decorators import permission_required
 from .errors import forbidden
+
 
 @api.route('/news/')
 def get_news():
@@ -42,6 +43,7 @@ def get_news():
         'count': pagination.total
     })
 
+
 @api.route('/origins/')
 def get_origins():
     """获取原创板块的图集和文章"""
@@ -64,6 +66,7 @@ def get_origins():
         'count': pagination.total
     })
 
+
 @api.route('/inters/')
 def get_inters():
     page = request.args.get('page', 1, type=int)
@@ -85,23 +88,27 @@ def get_inters():
         'count': pagination.total
     })
 
+
 @api.route('/news/<int:id>')
 def get_news_id(id):
     """获取特定id的新闻文章"""
     post = NewsPost.query.get_or_404(id)
     return jsonify(post.to_json())
 
+
 @api.route('/origins/<int:id>')
 def get_origins_id(id):
     """获取特定id的原创文章"""
-	post = OriginsPost.query.get_or_404(id)
-	return jsonify(post.to_json())
+    post = OriginsPost.query.get_or_404(id)
+    return jsonify(post.to_json())
+
 
 @api.route('/inters/<int:id>')
 def get_inters_id(id):
     """获取特定id的互动文章"""
-	post = IntersPost.query.get_or_404(id)
-	return jsonify(post.to_json())
+    post = IntersPost.query.get_or_404(id)
+    return jsonify(post.to_json())
+
 
 @api.route('/news/', methods=['POST'])
 @permission_required(Permission.WRITE_ARTICLES)
@@ -113,6 +120,7 @@ def new_news():
     db.session.commit()
     return jsonify(post.to_json()), 201, {'Location': url_for('api.get_post', id=post.id, _external=True)}
 
+
 @api.route('/origins/', methods=['POST'])
 @permission_required(Permission.WRITE_ARTICLES)
 def new_origins():
@@ -123,6 +131,7 @@ def new_origins():
     db.session.commit()
     return jsonify(post.to_json()), 201, {'Location': url_for('api.get_post', id=post.id, _external=True)}
 
+
 @api.route('/inters/', methods=['POST'])
 @permission_required(Permission.WRITE_ARTICLES)
 def new_inters():
@@ -132,6 +141,7 @@ def new_inters():
     db.session.add(post)
     db.session.commit()
     return jsonify(post.to_json()), 201, {'Location': url_for('api.get_post', id=post.id, _external=True)}
+
 
 @api.route('/news/<int:id>', methods=['PUT'])
 @permission_required(Permission.WRITE_ARTICLES)
@@ -144,9 +154,10 @@ def edit_news(id):
     db.session.add(post)
     return jsonify(post.to_json())
 
+
 @api.route('/origins/<int:id>', methods=['PUT'])
 @permission_required(Permission.WRITE_ARTICLES)
-def edit_origin(id):
+def edit_origins(id):
     """puts 特定id的原创文章"""
     post = OriginsPost.query.get_or_404(id)
     if g.current_user != post.author and not g.current_user.can(Permission.ADMINISTER):
@@ -155,6 +166,7 @@ def edit_origin(id):
     post.body = request.json.get('body', post.body)
     db.session.add(post)
     return jsonify(post.to_json())
+
 
 @api.route('/inters/<int:id>', methods=['PUT'])
 @permission_required(Permission.WRITE_ARTICLES)

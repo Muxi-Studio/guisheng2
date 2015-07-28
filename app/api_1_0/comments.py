@@ -13,6 +13,7 @@ from ..models import NewsPost, OriginsPost, IntersPost, Permission, NewsComment,
 from . import api
 from .decorators import permission_required # <-- 那个邻家的超级无敌可爱修饰器``
 
+
 @api.route('/newscomments/')
 def get_newscomments():
     page = request.args.get('page', 1, type=int)
@@ -33,6 +34,7 @@ def get_newscomments():
         'next': next,
         'count': pagination.total
     })
+
 
 @api.route('/originscomments/')
 def get_originscomments():
@@ -55,6 +57,7 @@ def get_originscomments():
         'count': pagination.total
     })
 
+
 @api.route('/interscomments/')
 def get_interscomments():
     page = request.args.get('page', 1, type=int)
@@ -76,42 +79,24 @@ def get_interscomments():
         'count': pagination.total
     })
 
+
 @api.route('/newscomments/<int:id>')
 def get_newscomment(id):
     comment = NewsComment.query.get_or_404(id)
     return jsonify(comment.to_json())
 
+
 @api.route('/originscomments/<int:id>')
-def get_newscomment(id):
+def get_originscomment(id):
     comment = OriginsComment.query.get_or_404(id)
     return jsonify(comment.to_json())
 
+
 @api.route('/interscomments/<int:id>')
-def get_intersscomment(id):
+def get_interscomment(id):
     comment = IntersComment.query.get_or_404(id)
     return jsonify(comment.to_json())
 
-@api.route('/news/<int:id>/comments/')
-def get_news_comments(id):
-    post = NewsPost.query.get_or_404(id)
-    page = request.args.get('page', 1, type=int)
-    pagination = post.comments.order_by(NewsComment.timestamp.asc()).paginate(
-        page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
-        error_out=False
-    )
-    comments = pagination.items
-    prev = None
-    if pagination.has_prev:
-        prev = url_for('api.get_news_comments', page=page-1, _external=True)
-    next = None
-    if pagination.has_next:
-        next = url_for('api.get_news_comments', page=page+1, _external=True)
-    return jsonify({
-        'posts': [comment.to_json() for comment in comments],
-        'prev': prev,
-        'next': next,
-        'count': pagination.total
-    })
 
 @api.route('/news/<int:id>/comments/')
 def get_news_comments(id):
@@ -134,6 +119,7 @@ def get_news_comments(id):
         'next': next,
         'count': pagination.total
     })
+
 
 @api.route('/origins/<int:id>/comments/')
 def get_origins_comments(id):
@@ -149,13 +135,14 @@ def get_origins_comments(id):
         prev = url_for('api.get_origins_comments', page=page-1, _external=True)
     next = None
     if pagination.has_next:
-        next = url_for('api.get_origins_comments', page=page+1, _external=True)
+        next = url_for('api.get_news_comments', page=page+1, _external=True)
     return jsonify({
         'posts': [comment.to_json() for comment in comments],
         'prev': prev,
         'next': next,
         'count': pagination.total
     })
+
 
 @api.route('/inters/<int:id>/comments/')
 def get_inters_comments(id):
@@ -179,6 +166,7 @@ def get_inters_comments(id):
         'count': pagination.total
     })
 
+
 @api.route('/news/<int:id>/comments/', methods=['POST'])
 @permission_required(Permission.COMMENT)
 def new_news_comment(id):
@@ -190,6 +178,7 @@ def new_news_comment(id):
     db.session.commit()
     return jsonify(comment.to_json()), 201, {'Location': url_for('api.get_news_comment', id=comment.id, _external=True)}
 
+
 @api.route('/origins/<int:id>/comments/', methods=['POST'])
 @permission_required(Permission.COMMENT)
 def new_origins_comment(id):
@@ -200,6 +189,7 @@ def new_origins_comment(id):
     db.session.add(comment)
     db.session.commit()
     return jsonify(comment.to_json()), 201, {'Location': url_for('api.get_origins_comment', id=comment.id, _external=True)}
+
 
 @api.route('/inters/<int:id>/comments/', methods=['POST'])
 @permission_required(Permission.COMMENT)

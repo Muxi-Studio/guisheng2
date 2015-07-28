@@ -23,16 +23,18 @@ from app.models import User, Role, Permission, NewsPost, OriginsPost, IntersPost
 from flask.ext.script import Manager, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
 
-#-------------------编码设置---------------------------
+# -------------------编码设置---------------------------
 # html文件
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
-#------------------------------------------------------
+# ------------------------------------------------------
+
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
+
 
 def make_shell_context():
     return dict(
@@ -51,6 +53,7 @@ def make_shell_context():
 
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
+
 
 @manager.command
 def test():
