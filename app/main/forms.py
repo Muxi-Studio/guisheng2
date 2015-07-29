@@ -13,9 +13,10 @@ from wtforms import ValidationError
 from flask.ext.pagedown.fields import PageDownField
 from ..models import Role, User
 
+
 class PostForm(Form):
     """提交表单类"""
-    body = PageDownField(">>", validators=[Required()])
+    body = TextAreaField(validators=[Required()])
     submit = SubmitField('提交')
 
 

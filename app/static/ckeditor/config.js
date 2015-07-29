@@ -27,7 +27,7 @@ CKEDITOR.editorConfig = function( config ) {
 	];
 
 	config.filebrowserUploadUrl = '/ckupload/';
-	config.filebrowserImageUploadUrl = '/ckupload';	
+	config.filebrowserImageUploadUrl = '/ckupload';
 	// Remove some buttons provided by the standard plugins, which are
 	// not needed in the Standard(s) toolbar.
 	config.removeButtons = 'Underline,Subscript,Superscript';
@@ -38,13 +38,13 @@ CKEDITOR.editorConfig = function( config ) {
 	// Simplify the dialog windows.
 	config.removeDialogTabs = 'image:advanced;link:advanced';
 
-	config.language = 'zh-cn'; 
+	config.language = 'zh-cn';
 
 	config.width = 400px;
 
-	config.height = 400px; 
+	config.height = 400px;
 
-	config.skin = 'v2'; 
+	config.skin = 'v2';
 
 	config.uiColor = '#FFF';
 

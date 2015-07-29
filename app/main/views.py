@@ -22,13 +22,14 @@ from app import gen_rnd_filename # 随机文件命名
 
 
 @login_required
+@main.route('/index', methods=['GET','POST'])
 @main.route('/', methods=['GET','POST'])
 def index():
 	"""url='/', 实现功能如下:
 	   1. 发布文章统计：依据时间排序
 	   2. 边栏统计发布文章最多的编辑"""
-
-	return render_template("index.html")
+	news = NewsPost.query.order_by(NewsPost.timestamp.desc()).all()
+	return render_template("index.html", news=news)
 
 
 @login_required
@@ -36,13 +37,16 @@ def index():
 def news():
     """url:/news  func: 新闻编辑页面（实现数据的上传）"""
     form = PostForm()
-    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
-        post = NewsPost(body=form.body.data, author=current_user._get_current_object())
-        db.session.add(post) # 提交数据库？
+    if form.validate_on_submit():
+        post = NewsPost(
+			   		body=form.body.data,
+			   		author=current_user._get_current_object()
+			   )
+        db.session.add(post)
+        flash("上传成功！")
         return redirect(url_for(".index"))
 
-    posts = NewsPost.query.order_by(NewsPost.timestamp.desc()).all()
-    return render_template('edit.html', form=form, posts=posts)
+    return render_template('edit_news.html', form=form)
 
 
 @login_required
@@ -74,7 +78,15 @@ def inters():
 @login_required
 @main.route("/ckupload/", methods=['OPTIONS','POST'])
 def ckupload():
-	"""集成CKEditor编辑器"""
+	"""
+	集成CKEditor编辑器
+	CKEditor是一款富文本编辑器
+	CKEditor is a ready-for-use HTML text editor designed to
+    simplify web content creation.
+    It's a WYSIWYG editor that brings common word processor features directly
+    to your web pages.
+	Enhance your website experience with our community maintained editor.
+	"""
 	error = ''
 	url = ''
 	callback = request.args.get("CKEditorFuncNum")

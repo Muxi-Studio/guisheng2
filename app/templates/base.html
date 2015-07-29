@@ -29,6 +29,7 @@
             {% endif %}
             <ul class="nav navbar-nav navbar-right">
                 {% if current_user.is_authenticated() %}
+                <li><a>Hello {{ current_user.username }}</a></li>
                 <li><a href="{{ url_for('auth.reset') }}">账户</a></li>
                 <li><a href="{{ url_for('auth.logout') }}">退出</a></li>
                 {% else %}

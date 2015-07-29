@@ -18,7 +18,6 @@ from . import db, login_manager
 from markdown import markdown
 from app.exceptions import ValidationError
 import bleach
-# from flask.ext.login import login_required
 from flask.ext.login import UserMixin, AnonymousUserMixin
 # 实现 flask-login 的默认方法
 # is_authenticated(): 如果用户已经登录返回 True，否则返回 False
@@ -208,7 +207,7 @@ class User(UserMixin, db.Model):
         return self.can(Permission.ADMINISTER)
 
     def ping(self):
-        """上次登录的时间(可选)"""
+        """刷新上次登录的时间(可选)"""
         self.last_seen = datetime.utcnow()
         db.session.add(self)
 
@@ -271,10 +270,8 @@ class AnonymousUser(AnonymousUserMixin):
         匿名类
         如果用户没有注册是允许(山民访问)
     """
-# ***************************************
     def can(self, permissions):
         return False
-# ***************************************
 
     def is_administrator(self):
         return False
@@ -297,7 +294,7 @@ class NewsPost(db.Model):
     """
     __tablename__ = "news"
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(64))  # 给了很大的空间(汉子占用字节大)
+    title = db.Column(db.String(64))  # 给了很大的空间(汉字占用字节大)
     body_html = db.Column(db.Text)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
