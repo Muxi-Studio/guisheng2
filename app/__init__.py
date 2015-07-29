@@ -27,14 +27,14 @@ from flask.ext.pagedown import PageDown
 from config import config
 
 
-# 初始化
+# flask扩展实例化
 bootstrap = Bootstrap()
 mail = Mail()
 moment = Moment()
 db = SQLAlchemy()
 login_manager = LoginManager()
-login_manager.session_protection = 'strong'
-login_manager.login_view = 'auth.login'
+login_manager.session_protection = 'strong'  # None, basic, strong
+login_manager.login_view = 'auth.login'  # endpoint of auth
 
 
 # 文件上传函数

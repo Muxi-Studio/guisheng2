@@ -14,11 +14,17 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app, url_for
-from flask.ext.login import UserMixin, AnonymousUserMixin
 from . import db, login_manager
 from markdown import markdown
 from app.exceptions import ValidationError
 import bleach
+# from flask.ext.login import login_required
+from flask.ext.login import UserMixin, AnonymousUserMixin
+# 实现 flask-login 的默认方法
+# is_authenticated(): 如果用户已经登录返回 True，否则返回 False
+# is_active(): 如果允许用户登录返回 True, 否则返回 False, 禁用用户账户返回 False
+# is_anonymous(): 对普通用户必须返回 False
+# get_id(): 必须返回用户的唯一标识符，使用 Unicode 字符串
 
 
 class Permission:
@@ -64,7 +70,6 @@ class Role(db.Model):
             3.Administer: 管理员(想干什么干什么)
             # 其实还有我: 直接操纵数据库:)
         """
-# ***************************************************************
         roles = {
             'User': (Permission.COMMENT |
                      Permission.WRITE_ARTICLES, True),
@@ -81,7 +86,6 @@ class Role(db.Model):
             role.default = roles[r][1]
             db.session.add(role)  # 添加进数据库
         db.session.commit()  # 提交
-# ****************************************************************
 
     def __repr__(self):
         """该类的'官方'表示方法"""
@@ -252,6 +256,12 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         """User类的官方字符串显示"""
         return '<User %r>' % self.username
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    """用户回调函数: 根据 user_id 返回 user 对象"""
+    return User.query.get(int(user_id))
 
 
 class AnonymousUser(AnonymousUserMixin):

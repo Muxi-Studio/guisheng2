@@ -18,6 +18,7 @@ class PostForm(Form):
     body = PageDownField(">>", validators=[Required()])
     submit = SubmitField('提交')
 
+
 class CommentForm(Form):
     """评论表单类"""
     body = StringField('>>', validators=[Required()])

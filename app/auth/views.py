@@ -1,91 +1,59 @@
 # -*- coding: UTF-8 -*-
 # !/usr/bin/python
-from flask import render_template
-from flask import redirect,request,url_for,flash
-from flask.ext.login import login_user,login_required,logout_user
-from flask.ext.login import current_user
+"""
+    views.py
+    ~~~~~~~~
 
+    auth登录模块视图函数文件
+    由于桂声是一个面向编辑的后台网站，
+    所以无需注册接口。账号直接由管理员发放。
+"""
+from flask import render_template
+from flask import redirect, request, url_for, flash
+from flask.ext.login import login_user, login_required, logout_user
+from flask.ext.login import current_user
 from . import auth
 from .. import db
 from ..models import User
 from ..email import send_email
 from .forms import LoginForm
-from .forms import RegistrationForm
+# from .forms import RegistrationForm
+from .forms import ResetForm
 
-@auth.before_app_request
-def before_request():
-    if current_user.is_authenticated() \
-        and not current_user.confirmed \
-        and request.endpoint[:5] != 'auth.' \
-        and request.endpoint != 'static':
-        return redirect(url_for('auth.uncofirmed'))
 
 @auth.route('/login',methods=['GET','POST'])
 def login():
-	form = LoginForm()
-	if form.validate_on_submit():
+    """登录界面视图函数"""
+    form = LoginForm()
+    if form.validate_on_submit():  # POST
 		user = User.query.filter_by(email=form.email.data).first()
 		if user is not None and user.verify_password(form.password.data):
-			login_user(user,form.remember_me.data)
+			login_user(user, form.remember_me.data)  # flask-login
 			return redirect(request.args.get('next') or url_for('main.index'))
 		flash("用户名或密码不存在")
-	return render_template('auth/login.html',form=form)
+    return render_template('auth/login.html', form=form)  # GET
 
 
 @auth.route('/logout')
-
 @login_required
 def logout():
-    logout_user()
+    """退出界面视图函数"""
+    logout_user()  # flask-login
     flash("你已退出")
     return redirect(url_for("main.index"))
 
 
-@auth.route('/register',methods=['GET','POST'])
-def register():
-    form = RegistrationForm()
+@login_required
+@auth.route('/reset', methods=['GET', 'POST'])
+def reset():
+    """url='/reset', 　重置用户密码"""
+    form = ResetForm()
     if form.validate_on_submit():
-        user = User(email=form.email.data,
-                    username=form.username.data,
-                    password=form.password.data)
-        db.session.add(user)
-        flash('注册成功，现在可以登陆了')
-        return redirect(url_for('auth.login'))
-        db.session.add(user)
-        db.session.commit()
-        token=user.generate_confirmation_token()
-        send_email(user.email,'请确认你的账户',
-                    'auth/email/confirm',user=user,token=token)
-        flash('确认账户的邮件已发送！')
-        return redirect(url_for('main.index'))
-	return render_template('auth/register.html',form=form)
-
-@auth.route('/confirm/<token>')
-
-@login_required
-def confirm(token):
-	if current_user.confirmed:
-		return redirect(url_for('main.index'))
-	if current_user.confirm(token):
-		flash('你已经确认了账户，谢谢！')
-	else:
-		flash('先确认你的账户吧！')
-	return redirect(url_for('main.index'))
-
-@auth.route('confirm')
-@login_required
-def resend_confirmation():
-	token = current_user.generate_confirmation_token()
-	send_email(current_user.email,'请确认你的账户',
-                'auth/email/confirm',user=current_user,token=token)
-	flash('一个新的确认邮件已发送！')
-	return redirect(url_for('main.index'))
-
-
-
-@auth.route('/uncofirmed')
-def uncofirmed():
-	if current_user.is_anonymous() or current_user.confirmed:
-		return redirect(url_for('main.index'))
-	return render_template('auth/unconfirmed.html')
-
+        if current_user.verify_password(form.old_password.data):
+            current_user.password = form.password1.data
+            db.session.add(current_user)
+            flash('密码已经更新!')
+            return redirect(url_for('main.index'))
+        else:
+            flash('旧密码输入有错！')
+    return render_template('auth/change_password.html', form=form)

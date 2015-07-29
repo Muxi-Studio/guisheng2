@@ -21,7 +21,8 @@ from ..models import User, Permission, Role, NewsPost, OriginsPost, IntersPost, 
 from app import gen_rnd_filename # 随机文件命名
 
 
-@main.route('/',methods=['GET','POST'])
+@login_required
+@main.route('/', methods=['GET','POST'])
 def index():
 	"""url='/', 实现功能如下:
 	   1. 发布文章统计：依据时间排序
@@ -30,7 +31,8 @@ def index():
 	return render_template("index.html")
 
 
-@main.route("/news",methods=['GET','POST'])
+@login_required
+@main.route("/news", methods=['GET','POST'])
 def news():
     """url:/news  func: 新闻编辑页面（实现数据的上传）"""
     form = PostForm()
@@ -42,18 +44,21 @@ def news():
     posts = NewsPost.query.order_by(NewsPost.timestamp.desc()).all()
     return render_template('edit.html', form=form, posts=posts)
 
-@main.route("/origins",methods=['GET','POST'])
+
+@login_required
+@main.route("/origins", methods=['GET','POST'])
 def origins():
     form = PostForm()
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
-		post = OriginsPost(body=form.body.data, author=current_user._get_current_object())
-		db.session.add(post)
-		return redirect(url_for(".index"))
+        post = OriginsPost(body=form.body.data, author=current_user._get_current_object())
+        db.session.add(post)
+        return redirect(url_for(".index"))
 
     posts = OriginsPost.query.order_by(OriginsPost.timestamp.desc()).all()
     return render_template("edit.html", form=form, posts=posts)
 
 
+@login_required
 @main.route('/inters', methods=['GET', 'POST'])
 def inters():
     form = PostForm()
@@ -65,7 +70,9 @@ def inters():
     posts = IntersPost.query.order_by(IntersPost.timestamp.desc()).all()
     return render_template("edit.html", form=form, posts=posts)
 
-@main.route("/ckupload/",methods=['OPTIONS','POST'])
+
+@login_required
+@main.route("/ckupload/", methods=['OPTIONS','POST'])
 def ckupload():
 	"""集成CKEditor编辑器"""
 	error = ''
