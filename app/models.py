@@ -294,7 +294,7 @@ class NewsPost(db.Model):
     """
     __tablename__ = "news"
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(64))  # 给了很大的空间(汉字占用字节大)
+    title = db.Column(db.String(32))  # 给了很大的空间(汉字占用字节大)
     body_html = db.Column(db.Text)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)

@@ -11,9 +11,8 @@
 <form class="form form-horizontal" method="post" role="form">
     {{ form.hidden_tag() }}
     {{ wtf.form_errors(form, hiddens="only") }}
-
-    <!---{{ wtf.form_field(form.body, class='ckeditor') }}--->
-    {{ form.body(class='ckeditor') }}
+    {{ wtf.form_field(form.title) }}
+    {{ wtf.form_field(form.body, class='ckeditor') }}
     <script type="text/javascript">
 	CKEDITOR.replace(
 		"body", {
@@ -21,7 +20,7 @@
 		}
 	);
     </script>
-    {{ wtf.form_field(form.submit, class='ckeditor') }}
+    {{ wtf.form_field(form.submit) }}
 </form>
 </div>
 {% endblock %}

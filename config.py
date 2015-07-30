@@ -31,8 +31,8 @@ class Config:
     FLASKY_MAIL_SUBJECT_PREFIX = '[快乐的桂声后台]'
     FLASKY_MAIL_SENDER = '桂声管理员 <webwebpy@163.com>'
     FLASKY_ADMIN = 'webwebpy@163.com'
-    FLASKY_POSTS_PER_PAGE = 15
-    FLASKY_COMMENTS_PER_PAGE = 15
+    FLASKY_POSTS_PER_PAGE = 10
+    FLASKY_COMMENTS_PER_PAGE = 10
 
     @staticmethod
     def init_app(app):

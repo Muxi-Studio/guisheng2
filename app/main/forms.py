@@ -7,6 +7,7 @@
 """
 
 from flask.ext.wtf import Form
+from flask.ext.pagedown.fields import PageDownField
 from wtforms import StringField, TextAreaField, BooleanField, SelectField, SubmitField
 from wtforms.validators import Required, Length, Email, Regexp
 from wtforms import ValidationError
@@ -16,6 +17,7 @@ from ..models import Role, User
 
 class PostForm(Form):
     """提交表单类"""
+    title = PageDownField(validators=[Required()])
     body = TextAreaField(validators=[Required()])
     submit = SubmitField('提交')
 
