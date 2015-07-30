@@ -12,15 +12,16 @@
     {{ form.hidden_tag() }}
     {{ wtf.form_errors(form, hiddens="only") }}
 
-    {{ wtf.form_field(form.body, class='ckeditor') }}
+    <!---{{ wtf.form_field(form.body, class='ckeditor') }}--->
+    {{ form.body(class='ckeditor') }}
     <script type="text/javascript">
 	CKEDITOR.replace(
-		'', {
+		"body", {
 			filebrowserUploadUrl: '/ckupload/'
 		}
 	);
     </script>
-    {{ wtf.form_field(form.submit) }}
+    {{ wtf.form_field(form.submit, class='ckeditor') }}
 </form>
 </div>
 {% endblock %}

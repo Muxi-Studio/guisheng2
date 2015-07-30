@@ -41,38 +41,46 @@ def news():
         post = NewsPost(
 			   		body=form.body.data,
 			   		author=current_user._get_current_object()
-			   )
+		)
         db.session.add(post)
         flash("上传成功！")
         return redirect(url_for(".index"))
 
-    return render_template('edit_news.html', form=form)
+    return render_template('edit.html', form=form)
 
 
 @login_required
 @main.route("/origins", methods=['GET','POST'])
 def origins():
+    """url:/origins  func: 原创编辑页面（实现数据的上传）"""
     form = PostForm()
-    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
-        post = OriginsPost(body=form.body.data, author=current_user._get_current_object())
+    if form.validate_on_submit():
+        post = OriginsPost(
+			   		body=form.body.data,
+			   		author=current_user._get_current_object()
+		)
         db.session.add(post)
+        flash("上传成功！")
         return redirect(url_for(".index"))
 
-    posts = OriginsPost.query.order_by(OriginsPost.timestamp.desc()).all()
-    return render_template("edit.html", form=form, posts=posts)
+    return render_template('edit.html', form=form)
 
 
 @login_required
-@main.route('/inters', methods=['GET', 'POST'])
+@main.route("/inters", methods=['GET','POST'])
 def inters():
+    """url:/inters  func: 新闻编辑页面（实现数据的上传）"""
     form = PostForm()
-    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
-	    post = IntersPost(body=form.body.data, author=current_user._get_current_object())
-	    db.session.add(post)
-	    return redirect(url_for(".index"))
+    if form.validate_on_submit():
+        post = IntersPost(
+			   		body=form.body.data,
+			   		author=current_user._get_current_object()
+		)
+        db.session.add(post)
+        flash("上传成功！")
+        return redirect(url_for(".index"))
 
-    posts = IntersPost.query.order_by(IntersPost.timestamp.desc()).all()
-    return render_template("edit.html", form=form, posts=posts)
+    return render_template('edit.html', form=form)
 
 
 @login_required
