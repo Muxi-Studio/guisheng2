@@ -62,5 +62,26 @@ def test():
     tests = unittest.TestLoader().discover('tests')
     unittest.TextTestRunner(verbosity=2).run(tests)
 
+
+@manager.command
+def adduser(email, username):
+    """添加用户"""
+    from getpass import getpass
+    password = getpass('password: ')
+    confirm = getpass('confirm: ')
+    if password == confirm:
+        user = User(
+            email=email,
+            username=username,
+            password=password
+        )
+        db.session.add(user)
+        db.session.commit()
+        return "user %s add in database" % username
+    else:
+        return "密码不匹配"
+        sys.exit(0)
+
+
 if __name__ == '__main__':
     manager.run()
