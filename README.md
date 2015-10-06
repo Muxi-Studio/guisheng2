@@ -62,7 +62,7 @@
 
 ### 7. issue
 
-    issue # : 申请测试账号
-    issue # : 用户API issue
-    issue # : 评论API issue
-    issue # : 具体板块API issue
+    issue #1: 申请测试账号
+    issue #5: 用户API issue
+    issue #6: 评论API issue
+    issue #4: 具体板块API issue
