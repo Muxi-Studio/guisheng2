@@ -1,0 +1,48 @@
+评论API文档
+===
+
+    获取、创建、更新评论信息
+
+    评论分为3大类别: 新闻板块评论，原创板块评论，互动板块评论
+    以下示例以[新闻版块]评论为例
+    [原创版块]评论只需将url中的 [newscomments] 替换为 [originscomments]
+    [互动版块]评论只需将url中的 [newscomments] 替换为 [interscomments]
+
+## 1. 获取特定id新闻的评论信息
+
+    $ http --auth $token GET http://121.43.230.104:5000/api/v1.0/news/51/comments
+
+返回数据
+
+    url: /news/51/comments
+    HTTP methods: GET
+    status code: 200
+    data type: json
+    json:
+        {
+        "count": 2,
+        "next": null,
+        "posts": [
+            {
+                "author": "http://localhost:5000/api/v1.0/users/51",
+                "body": "yes, I think flask is awesome, too! very usefull",
+                "body_html": "yes, I think flask is awesome, too! very usefull",
+                "news": "http://localhost:5000/api/v1.0/news?id=51",
+                "timestamp": "Tue, 06 Oct 2015 03:37:42 GMT",
+                "url": "http://localhost:5000/api/v1.0/newscomments/1"
+            },
+            {
+                "author": "http://localhost:5000/api/v1.0/users/51",
+                "body": "yes, I think flask is awesome, too! very usefull",
+                "body_html": "yes, I think flask is awesome, too! very usefull",
+                "news": "http://localhost:5000/api/v1.0/news?id=51",
+                "timestamp": "Tue, 06 Oct 2015 03:38:37 GMT",
+                "url": "http://localhost:5000/api/v1.0/newscomments/2"
+            }
+        ],
+        "prev": null
+    }
+
+## 2. 更新特定id的评论
+
+    $ http --auth $token PUT http://

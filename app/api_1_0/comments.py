@@ -3,10 +3,12 @@
 """
     comments.py
     ~~~~~~~~~~~
-    获取评论信息的API
-    １．评论的作者
-    修改评论
+
+        获取评论信息的API
+        １．评论的作者
+        修改评论
 """
+
 from flask import jsonify, request, g, url_for, current_app
 from .. import db
 from ..models import NewsPost, OriginsPost, IntersPost, Permission, NewsComment, IntersComment, OriginsComment
@@ -14,20 +16,21 @@ from . import api
 from .decorators import permission_required # <-- 那个邻家的超级无敌可爱修饰器``
 
 
-@api.route('/newscomments/')
+@api.route('/newscomments')
 def get_newscomments():
     page = request.args.get('page', 1, type=int)
     pagination = NewsComment.query.order_by(NewsComment.timestamp.desc()).paginate(
-        page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
+        page,
+        per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
         error_out=False
     )
     newscomments = pagination.items
     prev = None
     if pagination.has_prev:
-        prev = url_for('api.get_news_comments', page=page-1, _external=True)
+        prev = url_for('api.get_newscomments', page=page-1, _external=True)
     next = None
     if pagination.has_next:
-        next = url_for('api.get_news_comments', page=page+1, _external=True)
+        next = url_for('api.get_newscomments', page=page+1, _external=True)
     return jsonify({
         'posts': [comment.to_json() for comment in newscomments],
         'prev': prev,
@@ -46,10 +49,10 @@ def get_originscomments():
     originscomments = pagination.items
     prev = None
     if pagination.has_prev:
-        prev = url_for('api.get_origins_comments', page=page-1, _external=True)
+        prev = url_for('api.get_originscomments', page=page-1, _external=True)
     next = None
     if pagination.has_next:
-        next = url_for('api.get_origins_comments', page=page+1, _external=True)
+        next = url_for('api.get_originscomments', page=page+1, _external=True)
     return jsonify({
         'posts': [comment.to_json() for comment in originscomments],
         'prev': prev,
@@ -68,10 +71,10 @@ def get_interscomments():
     interscomments = pagination.items
     prev = None
     if pagination.has_prev:
-        prev = url_for('api.get_inters_comments', page=page-1, _external=True)
+        prev = url_for('api.get_interscomments', page=page-1, _external=True)
     next = None
     if pagination.has_next:
-        next = url_for('api.get_inters_comments', page=page+1, _external=True)
+        next = url_for('api.get_interscomments', page=page+1, _external=True)
     return jsonify({
         'posts': [comment.to_json() for comment in interscomments],
         'prev': prev,
@@ -109,10 +112,10 @@ def get_news_comments(id):
     comments = pagination.items
     prev = None
     if pagination.has_prev:
-        prev = url_for('api.get_news_comments', page=page-1, _external=True)
+        prev = url_for('api.get_newscomments', page=page-1, _external=True)
     next = None
     if pagination.has_next:
-        next = url_for('api.get_news_comments', page=page+1, _external=True)
+        next = url_for('api.get_newscomments', page=page+1, _external=True)
     return jsonify({
         'posts': [comment.to_json() for comment in comments],
         'prev': prev,
@@ -132,10 +135,10 @@ def get_origins_comments(id):
     comments = pagination.items
     prev = None
     if pagination.has_prev:
-        prev = url_for('api.get_origins_comments', page=page-1, _external=True)
+        prev = url_for('api.get_originscomments', page=page-1, _external=True)
     next = None
     if pagination.has_next:
-        next = url_for('api.get_news_comments', page=page+1, _external=True)
+        next = url_for('api.get_originscomments', page=page+1, _external=True)
     return jsonify({
         'posts': [comment.to_json() for comment in comments],
         'prev': prev,
@@ -155,10 +158,10 @@ def get_inters_comments(id):
     comments = pagination.items
     prev = None
     if pagination.has_prev:
-        prev = url_for('api.get_inters_comments', page=page-1, _external=True)
+        prev = url_for('api.get_interscomments', page=page-1, _external=True)
     next = None
     if pagination.has_next:
-        next = url_for('api.get_inters_comments', page=page+1, _external=True)
+        next = url_for('api.get_interscomments', page=page+1, _external=True)
     return jsonify({
         'posts': [comment.to_json() for comment in comments],
         'prev': prev,
@@ -167,28 +170,26 @@ def get_inters_comments(id):
     })
 
 
-@api.route('/news/<int:id>/comments/', methods=['POST'])
+@api.route('/news/<int:id>/comments/', methods=['POST', 'GET'])
 @permission_required(Permission.COMMENT)
 def new_news_comment(id):
-    post = NewsPost.query.get_or_404(id)
     comment = NewsComment.from_json(request.json)
     comment.author = g.current_user
-    comment.post = post
+    comment.news_id = id
     db.session.add(comment)
     db.session.commit()
-    return jsonify(comment.to_json()), 201, {'Location': url_for('api.get_news_comment', id=comment.id, _external=True)}
+    return jsonify(comment.to_json()), 201, {'Location': url_for('api.get_newscomment', id=comment.id, _external=True)}
 
 
 @api.route('/origins/<int:id>/comments/', methods=['POST'])
 @permission_required(Permission.COMMENT)
 def new_origins_comment(id):
-    post = OriginsPost.query.get_or_404(id)
     comment = OriginsComment.from_json(request.json)
     comment.author = g.current_user
-    comment.post = post
+    comment.news_id = id
     db.session.add(comment)
     db.session.commit()
-    return jsonify(comment.to_json()), 201, {'Location': url_for('api.get_origins_comment', id=comment.id, _external=True)}
+    return jsonify(comment.to_json()), 201, {'Location': url_for('api.get_originscomment', id=comment.id, _external=True)}
 
 
 @api.route('/inters/<int:id>/comments/', methods=['POST'])
@@ -200,4 +201,4 @@ def new_inters_comment(id):
     comment.post = post
     db.session.add(comment)
     db.session.commit()
-    return jsonify(comment.to_json()), 201, {'Location': url_for('api.get_inters_comment', id=comment.id, _external=True)}
+    return jsonify(comment.to_json()), 201, {'Location': url_for('api.get_interscomment', id=comment.id, _external=True)}

@@ -14,11 +14,11 @@
     {{ wtf.form_field(form.title) }}
     {{ wtf.form_field(form.body, class='ckeditor') }}
     <script type="text/javascript">
-	CKEDITOR.replace(
-		"body", {
-			filebrowserUploadUrl: '/ckupload/'
-		}
-	);
+	    CKEDITOR.replace(
+		    "body", {
+			    filebrowserUploadUrl: '/ckupload/'
+		    }
+	    );
     </script>
     {{ wtf.form_field(form.submit) }}
 </form>

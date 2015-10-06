@@ -12,7 +12,7 @@
 
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer  # 带时间的json web 签名(jws)
 from flask import current_app, url_for
 from . import db, login_manager
 from markdown import markdown
@@ -100,9 +100,8 @@ class User(UserMixin, db.Model):
         email: 用户的邮箱地址(此地址用于用户找回密码，无需进行邮箱验证)
         username: 用户名
         password_hash: 用户密码
-        avatar: 头像(尚未完成)
+        avatar: 头像url
         role_id: 指向用户角色的外键
-        #post 这里的文章中可能包含图片,或者就是纯图片(图集)
         news: 属性 用户发布的新闻文章
         origins: 属性 用户发布的原创文章
         inters: 属性 用户发布的互动文章
@@ -200,57 +199,49 @@ class User(UserMixin, db.Model):
         return True
 
     def can(self, permissions):
+        """用户角色对应的权限与希望其使用的权限一致"""
         return self.role is not None and \
             (self.role.permissions & permissions) == permissions
 
     def is_administrator(self):
         return self.can(Permission.ADMINISTER)
 
-    def ping(self):
-        """刷新上次登录的时间(可选)"""
-        self.last_seen = datetime.utcnow()
-        db.session.add(self)
-
-    def gravatar(self):
-        """头像占位(不知道具体如何处理)"""
-        pass
-
     def to_json(self):
         """API 以json格式[提、存]数据"""
         json_user = {
-            'url': url_for('api.get_news', id=self.id, _external=True),
+            'url': url_for('api.get_news_id', id=self.id, _external=True),
             'username': self.username,
             'email': self.email,
             'news': url_for('api.get_user_news', id=self.id, _external=True),
             'origins': url_for('api.get_user_origins', id=self.id, _external=True),
             'inters': url_for('api.get_user_inters', id=self.id, _external=True),
-            'news_comment': url_for('api.get_user_news_comment', id=self.id, _external=True),
-            'origins_comment': url_for("api.get_user_origins_comment", id=self.id, _external=True),
-            'inters_comment': url_for("api.get_user_inters_comment", id=self.id, _external=True)
         }
         return json_user
 
     """
     token(令牌)是一种验证方式(一般和用户信息相关),他有寿命，我们只需在生成用户和密码时生成一个token和寿命期限,
     在验证token时,在寿命期限内,token会变成纯文本密码,然后与数据库中存储进行比对
+
+    在传输过程中使用签名加密用户信息，前提是密钥不被泄漏
     """
     def generate_auth_token(self, expiration):
         """用用户的id生成token"""
         s = Serializer(
-            current_app.config["SECRET_KEY"],
-            expires_in=expiration  # token的寿命
+            # 生成一个带寿命的jws
+            current_app.config["SECRET_KEY"],  # SECRET_KEY is really important
+            expires_in=expiration
         )
-        return s.dumps({'id': self.id}).decode('ascii')  # 去除ascii码,保存数据
+        return s.dumps({'id': self.id}).decode('ascii')  # 签名json数据 {'id': self.id}
 
     @staticmethod
     def verify_auth_token(token):
         """验证token"""
-        s = Serializer(current_app.config["SECRET_KEY"])
+        s = Serializer(current_app.config["SECRET_KEY"])  # 相同的盐
         try:
-            data = s.loads(token)  # 尝试加载token
+            data = s.loads(token)  # 解签名{'id': self.id}
         except:
             return None
-        return User.query.get(data[id])  # User 是一个数据,query就是数据库查询函数
+        return User.query.get(data['id'])  # User 是一个数据,query就是数据库查询函数
 
     def __repr__(self):
         """User类的官方字符串显示"""
@@ -294,7 +285,7 @@ class NewsPost(db.Model):
     """
     __tablename__ = "news"
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(32))  # 给了很大的空间(汉字占用字节大)
+    title = db.Column(db.Text)  # 给了很大的空间(汉字占用字节大)
     body_html = db.Column(db.Text)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
@@ -312,6 +303,7 @@ class NewsPost(db.Model):
         for i in range(count):
             u = User.query.offset(randint(0, user_count - 1)).first()
             p = NewsPost(
+                title=forgery_py.lorem_ipsum.title(randint(1, 5)),
                 body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
                 timestamp=forgery_py.date.date(True),
                 author=u
@@ -373,7 +365,7 @@ class OriginsPost(db.Model):
     """
     __tablename__ = "origins"
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(64))  # 给了很大的空间(汉子占用字节大)
+    title = db.Column(db.Text)  # 给了很大的空间(汉子占用字节大)
     body_html = db.Column(db.Text)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
@@ -394,6 +386,7 @@ class OriginsPost(db.Model):
         for i in range(count):
             u = User.query.offset(randint(0, user_count - 1)).first()
             p = OriginsPost(
+                title=forgery_py.lorem_ipsum.title(randint(1, 5)),
                 body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
                 timestamp=forgery_py.date.date(True),
                 author=u
@@ -444,10 +437,10 @@ class IntersPost(db.Model):
     """
         IntersPost类
 
-            互动版块类
+            互动板块类(不仅仅只有文章)
             id: 主键
             title: 标题
-            body_html: 文章内容的html格式(可能包含图片,对于图片的处理依据文件名在存储文件夹中进行查找)
+            body_html: 文章内容的html格式
             body: 文章内容
             timestamp: 时间戳
             author_id: 作者
@@ -455,7 +448,7 @@ class IntersPost(db.Model):
     """
     __tablename__ = "inters"
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(64))  # 给了很大的空间(汉子占用字节大)
+    title = db.Column(db.Text)  # 给了很大的空间(汉子占用字节大)
     body_html = db.Column(db.Text)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
@@ -464,7 +457,10 @@ class IntersPost(db.Model):
 
     @staticmethod
     def generate_fake(count=100):
-        """生成互动板块的虚拟数据"""
+        """
+        生成原创板块虚拟数据
+        由于生成的虚拟数据中并不包括图片,所以测试时需要自己上传图片到数据库中
+        """
         from random import seed, randint
         import forgery_py
 
@@ -473,6 +469,7 @@ class IntersPost(db.Model):
         for i in range(count):
             u = User.query.offset(randint(0, user_count - 1)).first()
             p = IntersPost(
+                title=forgery_py.lorem_ipsum.title(randint(1, 5)),
                 body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
                 timestamp=forgery_py.date.date(True),
                 author=u
@@ -537,7 +534,6 @@ class NewsComment(db.Model):
     body = db.Column(db.Text)
     body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    # disabled = db.Column(db.Boolean)  # ??:(
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     news_id = db.Column(db.Integer, db.ForeignKey('news.id'))
 
@@ -552,7 +548,7 @@ class NewsComment(db.Model):
 
     def to_json(self):
         json_newsComment = {
-            'url': url_for('api.get_newsComment', id=self.id, _external=True),
+            'url': url_for('api.get_newscomment', id=self.id, _external=True),
             'news': url_for('api.get_news', id=self.news_id, _external=True),
             'body': self.body,
             'body_html': self.body_html,
@@ -590,9 +586,8 @@ class OriginsComment(db.Model):
     body = db.Column(db.Text)
     body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    # disabled = db.Column(db.Boolean)  # ??:(
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    news_id = db.Column(db.Integer, db.ForeignKey('origins.id'))
+    origins_id = db.Column(db.Integer, db.ForeignKey('origins.id'))
 
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
@@ -605,8 +600,8 @@ class OriginsComment(db.Model):
 
     def to_json(self):
         json_originsComment = {
-            'url': url_for('api.get_originsComment', id=self.id, _external=True),
-            'news': url_for('api.get_origins', id=self.news_id, _external=True),
+            'url': url_for('api.get_originscomment', id=self.id, _external=True),
+            'origins': url_for('api.get_origins', id=self.news_id, _external=True),
             'body': self.body,
             'body_html': self.body_html,
             'timestamp': self.timestamp,
@@ -635,16 +630,15 @@ class IntersComment(db.Model):
         timestamp: 时间戳
         disabled: ？什么时候会用到布尔值？？
         author_id: 作者的id
-        news_id: 此评论对应的互动文章的id
+        inters_id: 此评论对应的互动文章的id
     """
     __tablename__ = 'intersComments'
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.Text)
     body_html = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    # disabled = db.Column(db.Boolean)  # ??:(
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    news_id = db.Column(db.Integer, db.ForeignKey('inters.id'))
+    inters_id = db.Column(db.Integer, db.ForeignKey('inters.id'))
 
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
@@ -657,8 +651,8 @@ class IntersComment(db.Model):
 
     def to_json(self):
         json_intersComment = {
-            'url': url_for('api.get_intersComment', id=self.id, _external=True),
-            'news': url_for('api.get_inters', id=self.news_id, _external=True),
+            'url': url_for('api.get_interscomment', id=self.id, _external=True),
+            'inters': url_for('api.get_inters', id=self.news_id, _external=True),
             'body': self.body,
             'body_html': self.body_html,
             'timestamp': self.timestamp,

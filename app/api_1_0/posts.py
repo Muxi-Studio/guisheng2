@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
-# !/usr/bin/python
+# coding: utf-8
+
 """
     post.py
     ~~~~~~~
@@ -13,6 +13,7 @@
         4. put单个文章
         5. post文章集合
 """
+
 from flask import jsonify, request, g, url_for, current_app
 from .. import db
 from ..models import NewsPost, OriginsPost, IntersPost, Permission
@@ -21,17 +22,19 @@ from .decorators import permission_required
 from .errors import forbidden
 
 
-@api.route('/news/')
+@api.route('/news')
 def get_news():
     """获取新闻板块的文章(包括图片)"""
     page = request.args.get('page', 1, type = int)
     pagination = NewsPost.query.paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        page,  # show page one by default
+        per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
         error_out=False
     )
     news = pagination.items
     prev = None
     if pagination.has_prev:
+        # automanticly generate url has ? query prameters
         prev = url_for('api.get_news', page=page-1, _external=True)
     next = None
     if pagination.has_next:
@@ -49,7 +52,8 @@ def get_origins():
     """获取原创板块的图集和文章"""
     page = request.args.get('page', 1, type=int)
     pagination = OriginsPost.query.paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        page,
+        per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
         error_out=False
     )
     origins = pagination.items
@@ -71,7 +75,8 @@ def get_origins():
 def get_inters():
     page = request.args.get('page', 1, type=int)
     pagination = IntersPost.query.paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        page,
+        per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
         error_out=False
     )
     inters = pagination.items
@@ -91,7 +96,8 @@ def get_inters():
 
 @api.route('/news/<int:id>')
 def get_news_id(id):
-    """获取特定id的新闻文章"""
+    """获取特定id的新闻文章,
+       it is just a standard jsonify"""
     post = NewsPost.query.get_or_404(id)
     return jsonify(post.to_json())
 
@@ -110,18 +116,23 @@ def get_inters_id(id):
     return jsonify(post.to_json())
 
 
-@api.route('/news/', methods=['POST'])
+@api.route('/news', methods=['POST', 'GET', 'OPTIONS'])
+# just use the decorater to control the user permission
 @permission_required(Permission.WRITE_ARTICLES)
 def new_news():
     """post新闻文章集合"""
+    # read the json data via request object
     post = NewsPost.from_json(request.json)
+    # current_user(see in authentication.py) is author
     post.author = g.current_user
+    # add it in database
     db.session.add(post)
     db.session.commit()
-    return jsonify(post.to_json()), 201, {'Location': url_for('api.get_post', id=post.id, _external=True)}
+    # and return json -> (status_code, Location_url)
+    return jsonify(post.to_json()), 201, {'Location': url_for('api.get_news', id=post.id, _external=True)}
 
 
-@api.route('/origins/', methods=['POST'])
+@api.route('/origins/', methods=['POST', 'GET', 'OPTIONS'])
 @permission_required(Permission.WRITE_ARTICLES)
 def new_origins():
     """post原创文章集合"""
@@ -129,7 +140,7 @@ def new_origins():
     post.author = g.current_user
     db.session.add(post)
     db.session.commit()
-    return jsonify(post.to_json()), 201, {'Location': url_for('api.get_post', id=post.id, _external=True)}
+    return jsonify(post.to_json()), 201, {'Location': url_for('api.get_origins', id=post.id, _external=True)}
 
 
 @api.route('/inters/', methods=['POST'])
@@ -140,7 +151,7 @@ def new_inters():
     post.author = g.current_user
     db.session.add(post)
     db.session.commit()
-    return jsonify(post.to_json()), 201, {'Location': url_for('api.get_post', id=post.id, _external=True)}
+    return jsonify(post.to_json()), 201, {'Location': url_for('api.get_inters', id=post.id, _external=True)}
 
 
 @api.route('/news/<int:id>', methods=['PUT'])
@@ -149,9 +160,10 @@ def edit_news(id):
     """puts 特定id的新闻文章"""
     post = NewsPost.query.get_or_404(id)
     if g.current_user != post.author and not g.current_user.can(Permission.ADMINISTER):
-        return forbidden('你不具备修改权限!')
+        return forbidden('unauthored biu biu biu ~~~')
     post.body = request.json.get('body', post.body)
     db.session.add(post)
+    db.session.commit()
     return jsonify(post.to_json())
 
 
@@ -165,6 +177,7 @@ def edit_origins(id):
     post.body = request.json.get('body', post.body)
     post.body = request.json.get('body', post.body)
     db.session.add(post)
+    db.session.commit()
     return jsonify(post.to_json())
 
 
@@ -177,4 +190,5 @@ def edit_inters(id):
         return forbidden('你不具备修改权限!')
     post.body = request.json.get('body', post.body)
     db.session.add(post)
+    db.session.commit()
     return jsonify(post.to_json())

@@ -91,3 +91,10 @@ def get_user_inters(id):
         'next': next,
         'count': pagination.total
     })
+
+
+@api.route('/users', methods=["POST"])
+@auth.login_required
+def new_user():
+    """创建一个新用户"""
+

@@ -7,15 +7,14 @@
 """
 
 from flask.ext.wtf import Form
+from flaskckeditor import CKEditor
 from flask.ext.pagedown.fields import PageDownField
-from wtforms import StringField, TextAreaField, BooleanField, SelectField, SubmitField
-from wtforms.validators import Required, Length, Email, Regexp
-from wtforms import ValidationError
-from flask.ext.pagedown.fields import PageDownField
+from wtforms import StringField, TextAreaField, SubmitField
+from wtforms.validators import Required
 from ..models import Role, User
 
 
-class PostForm(Form):
+class PostForm(Form, CKEditor):
     """提交表单类"""
     title = PageDownField(validators=[Required()])
     body = TextAreaField(validators=[Required()])

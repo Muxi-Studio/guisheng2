@@ -1,43 +1,68 @@
-# guiSheng
-桂声APP后台github开发版<br/>
-~木犀后台组~<br/>
+桂声
+===
 
-## 桂声后台功能
+    桂声APP后台开发版
+    测试数据库
+    测试API
 
-	1. 上传新闻、图集接口
-  	2. 提供API与安卓交互
+## 桂声API测试版文档
+### 1. 预备
+#### 测试根url: http://121.43.230.104:5000/api/v1.0/
+#### 申请测试账户: 在此仓库的issue下留言，写上基本信息，以及使用这个API的目的
 
-## 桂声API测试版
-#### 测试根url: http://127.0.0.1:5000/api/v1.0/
-桂声app是华大桂声网站的安卓版，主要功能板块如下
+### 2. API验证
+#### 1. 验证方式
 
-  	1. 新闻， 2. 原创， 3.互动
+    桂声API采用token验证(token是包含用户信息的加密签名)
 
-### 1. 新闻板块
-#### 1. 获取新闻文章的集合(无须验证)v
+#### 2. 获取token (在终端采用httpie测试)
 
-  	url: /news/
-  	HTTP method: GET
-  	description: 获取新闻文章的集合
-  	data type: json
-  	json:
-  		{
-    		"count": 4,
-    		"news":
-    		[
-        		{
-            		"author": "http://121.43.230.104:5000/api/v1.0/users/1",
-            		"body": " neo1218 is so cool!! ",
-            		"body_html": " <p>neo1218 is so cool!</p> ",
-            		"comments": "http://121.43.230.104:5000/api/v1.0/news/1/comments/",
-            		"timestamp": "Thu, 03 Sep 2015 06:47:36 GMT",
-            		"title": "我校飞镖队在中国飞镖联赛中喜获佳绩",
-            		"url": "http://121.43.230.104:5000/api/v1.0/news/?id=1"
-        		},
-        		......
-        	]
-        	"next": null,
-    		"prev": null
-        }
-    
-#### 2. 获取特定id的文章  
+    http --auth user_email POST http://121.43.230.104:5000/api/v1.0/token
+
+得到token如下
+
+    HTTP/1.0 200 OK
+    Content-Length: 162
+    Content-Type: application/json
+    Date: Tue, 06 Oct 2015 07:30:31 GMT
+    Server: Werkzeug/0.10.4 Python/2.7.6
+
+    {
+        "expiration": 3600,
+        "token": "eyJhbGciOiJIUzI1NiIsImV4cCI6MTQ0NDEyMDIzMSwiaWF0IjoxNDQ0MTE2"
+    }
+
+### 3. 具体板块API文档
+
+    桂声APP分为三个板块: 新闻、原创、互动
+
+        新闻: 提供校园咨询
+        原创: 提供优质图集、美文
+        互动: 与小编互动
+
+[具体板块API文档]() <br/>
+
+### 4. 用户API文档
+
+    用户的基本信息
+
+[用户API文档]() <br/>
+
+### 5. 评论API文档
+
+    评论的信息
+
+[评论API文档]() <br/>
+
+
+### 6. API的可寻址性
+
+    这个API文档尽可能做到将所有用到的API资源列举出来，但是更多的资源还可以深入挖掘
+    比如获取一篇文章，你可以根据返回的作者的url，进一步获取作者的信息
+
+### 7. issue
+
+    issue # : 申请测试账号
+    issue # : 用户API issue
+    issue # : 评论API issue
+    issue # : 具体板块API issue

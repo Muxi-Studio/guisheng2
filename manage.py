@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-# !/usr/bin/python
+
 """
     manage.py
     ~~~~~~~~~
@@ -15,6 +15,9 @@
                         >>>IntersPost.generate_fake(100)
     3.shell管理
         python manage.py shell
+    4.用户管理
+        添加用户
+        python manage.py adduser user_email username
 """
 
 import os
@@ -22,13 +25,11 @@ from app import create_app, db
 from app.models import User, Role, Permission, NewsPost, OriginsPost, IntersPost, NewsComment, OriginsComment, IntersComment
 from flask.ext.script import Manager, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
-
-# -------------------编码设置---------------------------
-# html文件
 import sys
+
+
 reload(sys)
 sys.setdefaultencoding('utf-8')
-# ------------------------------------------------------
 
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
@@ -50,6 +51,7 @@ def make_shell_context():
         OriginsComment=OriginsComment,
         IntersComment=IntersComment
     )
+
 
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)

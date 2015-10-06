@@ -1,13 +1,13 @@
-"""v1.0
+"""v1
 
-Revision ID: 20625ceb7632
+Revision ID: 80e7ca95d05
 Revises: None
-Create Date: 2015-07-28 11:50:26.891180
+Create Date: 2015-10-05 21:28:08.555857
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '20625ceb7632'
+revision = '80e7ca95d05'
 down_revision = None
 
 from alembic import op
@@ -49,7 +49,7 @@ def upgrade():
     op.create_index(op.f('ix_inters_timestamp'), 'inters', ['timestamp'], unique=False)
     op.create_table('news',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('title', sa.String(length=64), nullable=True),
+    sa.Column('title', sa.String(length=32), nullable=True),
     sa.Column('body_html', sa.Text(), nullable=True),
     sa.Column('body', sa.Text(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
@@ -75,9 +75,9 @@ def upgrade():
     sa.Column('body_html', sa.Text(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.Column('author_id', sa.Integer(), nullable=True),
-    sa.Column('news_id', sa.Integer(), nullable=True),
+    sa.Column('inters_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['author_id'], ['users.id'], ),
-    sa.ForeignKeyConstraint(['news_id'], ['inters.id'], ),
+    sa.ForeignKeyConstraint(['inters_id'], ['inters.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_intersComments_timestamp'), 'intersComments', ['timestamp'], unique=False)

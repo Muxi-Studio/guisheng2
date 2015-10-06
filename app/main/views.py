@@ -6,11 +6,8 @@
 		桂声app后台视图函数文件
 		后台功能实现
 """
+
 import os
-import re
-import json
-import random
-import urllib
 from datetime import datetime
 from flask import render_template, url_for, session, redirect, request, make_response, abort, flash, current_app
 from flask.ext.login import login_required, current_user
@@ -18,7 +15,6 @@ from . import main
 from .forms import PostForm
 from .. import db
 from ..models import User, Permission, Role, NewsPost, OriginsPost, IntersPost, NewsComment, OriginsComment, IntersComment
-from app import gen_rnd_filename # 随机文件命名
 
 
 @login_required
@@ -92,48 +88,10 @@ def inters():
     return render_template('edit.html', form=form)
 
 
+"""
 @login_required
-@main.route("/ckupload/", methods=['OPTIONS','POST'])
 def ckupload():
-	"""
-	集成CKEditor编辑器
-	CKEditor是一款富文本编辑器
-	CKEditor is a ready-for-use HTML text editor designed to
-    simplify web content creation.
-    It's a WYSIWYG editor that brings common word processor features directly
-    to your web pages.
-	Enhance your website experience with our community maintained editor.
-	"""
-	error = ''
-	url = ''
-	callback = request.args.get("CKEditorFuncNum")
-
-	if request.method == 'POST' and 'upload' in request.files:
-		fileobj = request.files['upload']
-		fname, fext = os.path.splitext(fileobj.filename)
-		rnd_name = '%s%s' % (gen_rnd_filename(), fext)
-		filepath = os.path.join(main.static_folder,'upload',rnd_name)
-
-		# 检查路径是否存在，不存在则创建
-        dirname = os.path.dirname(filepath)
-        if not os.path.exists(dirname):
-			try:
-				os.makedirs(dirname)
-			except:
-				error = 'ERROR_CREATE_DIR'
-        elif not os.access(dirname, os.W_OK):
-			error = 'ERROR_DIR_NOT_WRITEABLE'
-        if not error:
-		    fileobj.save(filepath)
-		    url = url_for('.static', filename='%s%s' % ('upload/', rnd_name))
-	else:
-		error = '提交错误！'
-
-	res = """
-	<script type="text/javascript">
-	window.parent.CKEDITOR.tools.callFunction(%s, '%s', '%s');
-	</script>
-	""" % (callback, url, error)
-	response = make_response(res)
-	response.headers["Content-Type"] = "text/html"
-	return response
+    form = PostForm()
+    response = form.upload(endpoint=app)
+    return response
+"""

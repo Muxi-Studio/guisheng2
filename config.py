@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
-#!/usr/bin/python
 
 """
     config.py
     ~~~~~~~~~
+
         桂声后台配置文件
         1:邮件配置
         2:分页配置
@@ -11,7 +11,8 @@
 """
 
 import os
-basedir = os.path.abspath(os.path.dirname(__file__)) # 配置文件的根路径
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 
 class Config:
     """
@@ -21,7 +22,7 @@ class Config:
         3.  邮件配置
         4.  分页配置
     """
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'I hate flask'
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     MAIL_SERVER = 'smtp.163.com'
     MAIL_PORT = 25
@@ -38,11 +39,13 @@ class Config:
     def init_app(app):
         pass
 
+
 class DevelopmentConfig(Config):
     """开发环境数据库配置"""
     DEBUG = True # 调试器开启
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
+
 
 class TestingConfig(Config):
     """测试环境数据库配置"""
@@ -50,10 +53,12 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
 
+
 class ProductionConfig(Config):
     """生产环境数据库配置"""
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+
 
 config = {
      # 配置字典
