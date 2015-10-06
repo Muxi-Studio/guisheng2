@@ -48,4 +48,4 @@
 
 ## issue
 
-    如有疑问欢迎在 issue:User_api_issue 下提问
+    如有疑问欢迎在 issue: #5 下提问
