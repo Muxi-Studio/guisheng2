@@ -40,19 +40,19 @@
         原创: 提供优质图集、美文
         互动: 与小编互动
 
-[具体板块API文档]() <br/>
+[具体板块API文档](https://github.com/neo1218/guisheng2/blob/master/doc/news_api.md) <br/>
 
 ### 4. 用户API文档
 
     用户的基本信息
 
-[用户API文档]() <br/>
+[用户API文档](https://github.com/neo1218/guisheng2/blob/master/doc/users_api.md) <br/>
 
 ### 5. 评论API文档
 
     评论的信息
 
-[评论API文档]() <br/>
+[评论API文档](https://github.com/neo1218/guisheng2/blob/master/doc/comments_api.md) <br/>
 
 
 ### 6. API的可寻址性
