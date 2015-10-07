@@ -1,5 +1,5 @@
-# -*- coding: UTF-8 -*-
-#!/usr/bin/python
+# coding: UTF-8
+
 """
 	views.py
 	~~~~~~~~~
@@ -7,14 +7,12 @@
 		后台功能实现
 """
 
-import os
-from datetime import datetime
-from flask import render_template, url_for, session, redirect, request, make_response, abort, flash, current_app
+from flask import render_template, url_for, redirect, request, flash, current_app
 from flask.ext.login import login_required, current_user
 from . import main
 from .forms import PostForm
 from .. import db
-from ..models import User, Permission, Role, NewsPost, OriginsPost, IntersPost, NewsComment, OriginsComment, IntersComment
+from ..models import NewsPost, OriginsPost, IntersPost
 
 
 @login_required
@@ -88,10 +86,8 @@ def inters():
     return render_template('edit.html', form=form)
 
 
-"""
-@login_required
+@main.route('/ckupload/', methods=["POST", "GET"])
 def ckupload():
     form = PostForm()
-    response = form.upload(endpoint=app)
+    response = form.upload(endpoint=main)
     return response
-"""

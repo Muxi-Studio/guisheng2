@@ -7,11 +7,10 @@
 """
 
 from flask.ext.wtf import Form
-from flaskckeditor import CKEditor
+from flaskckeditor import CKEditor  # 使用Flask-CKEditor扩展
 from flask.ext.pagedown.fields import PageDownField
 from wtforms import StringField, TextAreaField, SubmitField
 from wtforms.validators import Required
-from ..models import Role, User
 
 
 class PostForm(Form, CKEditor):
