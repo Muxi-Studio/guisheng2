@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# coding: UTF-8
 
 """
     manage.py
@@ -18,6 +18,8 @@
     4.用户管理
         添加用户
         python manage.py adduser user_email username
+    5.测试
+        python manage.py test (--coverage)
 """
 
 import os
@@ -30,6 +32,13 @@ import sys
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
+
+
+COV = None
+if os.environ.get('FLASK_COVERAGE'):
+    import coverage
+    COV = coverage.coverage(branch=True, include='app/*')  # 覆盖分支以及app下的所有文件
+    COV.start()
 
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
@@ -58,11 +67,28 @@ manager.add_command('db', MigrateCommand)
 
 
 @manager.command
-def test():
-    """Run the unit tests."""
+def test(coverage=False):
+    """Run the unit tests.
+       add coverage code report"""
+    if coverage and not os.environ.get('FLASK_COVERAGE'):
+        import sys
+        os.environ['FLASK_COVERAGE'] = '1'
+        os.execvp(sys.executable, [sys.executable] + sys.argv)
+
     import unittest
     tests = unittest.TestLoader().discover('tests')
     unittest.TextTestRunner(verbosity=2).run(tests)
+
+    if COV:
+        COV.stop()
+        COV.save()
+        print 'Coverage Summary:'
+        COV.report()
+        basedir = os.path.abspath(os.path.dirname(__file__))
+        covdir = os.path.join(basedir, '/tmp/coverage')
+        COV.html_report(directory=covdir)
+        print 'HTML version: file://%s/index.html' % covdir
+        COV.erase()
 
 
 @manager.command
