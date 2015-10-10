@@ -1,0 +1,4 @@
+{
+  "test_client.py::FlaskClientTestCase::test_homepage": true, 
+  "test_client.py::FlaskClientTestCase::test_login": true
+}

@@ -1,0 +1,21 @@
+# coding: utf-8
+
+"""
+    test_newspost_model.py
+    ~~~~~~~~~~~~~~~~~~~~~~
+
+        测试新闻文章数据库模型
+"""
+
+from .test_models_base import TestBaseModel
+from app import create_app, db
+from app.models import NewsPost
+
+
+Post = NewsPost  # public Post
+
+
+class NewsPostTestCase(TestBaseModel):
+    """继承TestBaseModel类，直接进行测试"""
+    test_
+
