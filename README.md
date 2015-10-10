@@ -1,6 +1,6 @@
 桂声
 ===
-[![testing](https://github.com/neo1218/guisheng2/blob/master/artwork/coverage.svg)](https://github.com/neo1218/guisheng2/tree/master/tests)
+[![testing](http://neo1218.github.io/img/coverage.svg)](https://github.com/neo1218/guisheng2/tree/master/tests)
 
     桂声APP后台开发版
     测试数据库
