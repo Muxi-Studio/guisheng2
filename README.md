@@ -67,3 +67,8 @@
     issue #5: 用户API issue
     issue #6: 评论API issue
     issue #4: 具体板块API issue
+
+### 8. LICENSE
+
+    MIT LICENSE
+    see LICENSE for more details
