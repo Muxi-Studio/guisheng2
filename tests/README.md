@@ -9,4 +9,4 @@ guiSheng --> Test
 
 ## Run test use pytest
 
-    py.test tests
+    make
