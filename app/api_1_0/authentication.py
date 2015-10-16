@@ -26,7 +26,7 @@ def verify_password(email_or_token, password):
         g.current_user = AnonymousUser()
         return True
     if password == '':
-        # do not use password , use token
+        # do not use password , use token!
         g.current_user = User.verify_auth_token(email_or_token)
         g.token_used = True
         return g.current_user is not None
@@ -46,8 +46,8 @@ def before_request():
        all the route can get the login_required
        and if you logged in, but you didn't have
        confirmed account, and it will raise 403 error"""
-    if not g.current_user.is_anonymous:
-        return forbidden('Unconfirmed account')
+    if g.current_user.is_anonymous:
+       return forbidden('Unconfirmed account')
 
 
 """error_handler decorater can help us generate json formate error easily"""
@@ -65,17 +65,18 @@ def server_error_error():
     return server_error('Server error')
 
 
+@auth.login_required
 @api.route('/token', methods=["POST", "GET"])
 def get_token():
     """token is just a serializer which include user info,
        what you need do is log in the url, and post to the token url
        get the token and use the token login, and that's, it is very
        eazy to tell you(use id), but secret key needed"""
-    if g.current_user.is_anonymous() or g.token_used:
+    if g.token_used:
         # that means you can not use token to get token
         return unauthorized('Invalid credentials')
     return jsonify({
         # use the serializer wrap the user id and secret_key
         'token': g.current_user.generate_auth_token(expiration=3600),
-        'expiration': 3600
+        'expiration': 3600  # timelimte json serializer
     })
