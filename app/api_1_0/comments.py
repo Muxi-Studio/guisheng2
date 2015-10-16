@@ -39,7 +39,7 @@ def get_newscomments():
     })
 
 
-@api.route('/originscomments/')
+@api.route('/originscomments')
 def get_originscomments():
     page = request.args.get('page', 1, type=int)
     pagination = OriginsComment.query.order_by(OriginsComment.timestamp.desc()).paginate(
@@ -61,7 +61,7 @@ def get_originscomments():
     })
 
 
-@api.route('/interscomments/')
+@api.route('/interscomments')
 def get_interscomments():
     page = request.args.get('page', 1, type=int)
     pagination = IntersComment.query.order_by(IntersComment.timestamp.desc()).paginate(
@@ -101,7 +101,7 @@ def get_interscomment(id):
     return jsonify(comment.to_json())
 
 
-@api.route('/news/<int:id>/comments/')
+@api.route('/news/<int:id>/comments')
 def get_news_comments(id):
     post = NewsPost.query.get_or_404(id)
     page = request.args.get('page', 1, type=int)
@@ -124,7 +124,7 @@ def get_news_comments(id):
     })
 
 
-@api.route('/origins/<int:id>/comments/')
+@api.route('/origins/<int:id>/comments')
 def get_origins_comments(id):
     post = OriginsPost.query.get_or_404(id)
     page = request.args.get('page', 1, type=int)
@@ -147,7 +147,7 @@ def get_origins_comments(id):
     })
 
 
-@api.route('/inters/<int:id>/comments/')
+@api.route('/inters/<int:id>/comments')
 def get_inters_comments(id):
     post = IntersPost.query.get_or_404(id)
     page = request.args.get('page', 1, type=int)
@@ -170,7 +170,7 @@ def get_inters_comments(id):
     })
 
 
-@api.route('/news/<int:id>/comments/', methods=['POST', 'GET'])
+@api.route('/news/<int:id>/comments', methods=['POST', 'GET'])
 @permission_required(Permission.COMMENT)
 def new_news_comment(id):
     comment = NewsComment.from_json(request.json)
@@ -181,7 +181,7 @@ def new_news_comment(id):
     return jsonify(comment.to_json()), 201, {'Location': url_for('api.get_newscomment', id=comment.id, _external=True)}
 
 
-@api.route('/origins/<int:id>/comments/', methods=['POST'])
+@api.route('/origins/<int:id>/comments', methods=['POST'])
 @permission_required(Permission.COMMENT)
 def new_origins_comment(id):
     comment = OriginsComment.from_json(request.json)
@@ -192,7 +192,7 @@ def new_origins_comment(id):
     return jsonify(comment.to_json()), 201, {'Location': url_for('api.get_originscomment', id=comment.id, _external=True)}
 
 
-@api.route('/inters/<int:id>/comments/', methods=['POST'])
+@api.route('/inters/<int:id>/comments', methods=['POST'])
 @permission_required(Permission.COMMENT)
 def new_inters_comment(id):
     post = IntersPost.query.get_or_404(id)

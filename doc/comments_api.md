@@ -45,7 +45,7 @@
 
 ## 2. 创建评论
 
-    $ http --auth $token POST http://121.43.230.104:5000/api/v1.0/news/51/comments/ body="biu biu ~~~"
+    $ http --auth $token POST http://121.43.230.104:5000/api/v1.0/news/51/comments body="biu biu ~~~"
 
 返回数据
 

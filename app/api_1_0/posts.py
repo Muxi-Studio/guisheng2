@@ -47,7 +47,7 @@ def get_news():
     })
 
 
-@api.route('/origins/')
+@api.route('/origins')
 def get_origins():
     """获取原创板块的图集和文章"""
     page = request.args.get('page', 1, type=int)
@@ -71,7 +71,7 @@ def get_origins():
     })
 
 
-@api.route('/inters/')
+@api.route('/inters')
 def get_inters():
     page = request.args.get('page', 1, type=int)
     pagination = IntersPost.query.paginate(
@@ -132,7 +132,7 @@ def new_news():
     return jsonify(post.to_json()), 201, {'Location': url_for('api.get_news', id=post.id, _external=True)}
 
 
-@api.route('/origins/', methods=['POST', 'GET', 'OPTIONS'])
+@api.route('/origins', methods=['POST', 'GET', 'OPTIONS'])
 @permission_required(Permission.WRITE_ARTICLES)
 def new_origins():
     """post原创文章集合"""
@@ -143,7 +143,7 @@ def new_origins():
     return jsonify(post.to_json()), 201, {'Location': url_for('api.get_origins', id=post.id, _external=True)}
 
 
-@api.route('/inters/', methods=['POST'])
+@api.route('/inters', methods=['POST'])
 @permission_required(Permission.WRITE_ARTICLES)
 def new_inters():
     """post互动文章集合"""

@@ -21,7 +21,7 @@ def get_user(id):
     return jsonify(user.to_json())
 
 
-@api.route('/users/<int:id>/news/')
+@api.route('/users/<int:id>/news')
 def get_user_news(id):
     """获取特定作者发布的新闻文章集合"""
     user = User.query.get_or_404(id)
@@ -45,7 +45,7 @@ def get_user_news(id):
     })
 
 
-@api.route('/users/<int:id>/origins/')
+@api.route('/users/<int:id>/origins')
 def get_user_origins(id):
     """获取特定作者发布的原创文章集合"""
     user = User.query.get_or_404(id)
@@ -69,7 +69,7 @@ def get_user_origins(id):
 	})
 
 
-@api.route('/users/<int:id>/inters/')
+@api.route('/users/<int:id>/inters')
 def get_user_inters(id):
     """获取特定作者发布的互动文章"""
     user = User.query.get_or_404(id)
