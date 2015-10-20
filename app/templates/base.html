@@ -21,7 +21,7 @@
             <a class="navbar-brand" href="{{ url_for('main.index') }}">桂声后台</a>
         </div>
         <div class="navbar-collapse collapse">
-            {% if current_user.is_authenticated() %}
+            {% if current_user.is_authenticated %}
             <ul class="nav navbar-nav">
                 <li><a href="/news">新闻</a></li>
 				<li><a href="/origins">原创</a></li>
@@ -29,7 +29,7 @@
             </ul>
             {% endif %}
             <ul class="nav navbar-nav navbar-right">
-                {% if current_user.is_authenticated() %}
+                {% if current_user.is_authenticated %}
                 <li><a>Hello {{ current_user.username }}</a></li>
                 <li><a href="{{ url_for('auth.reset') }}">账户</a></li>
                 <li><a href="{{ url_for('auth.logout') }}">退出</a></li>
