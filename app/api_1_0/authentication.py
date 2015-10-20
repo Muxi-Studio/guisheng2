@@ -40,14 +40,12 @@ def verify_password(email_or_token, password):
 
 
 @api.before_request
-@auth.login_required
 def before_request():
     """run before the each request, and that's
        all the route can get the login_required
        and if you logged in, but you didn't have
        confirmed account, and it will raise 403 error"""
-    if g.current_user.is_anonymous:
-       return forbidden('Unconfirmed account')
+    pass
 
 
 """error_handler decorater can help us generate json formate error easily"""
