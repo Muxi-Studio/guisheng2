@@ -68,7 +68,12 @@
     issue #6: 评论API issue
     issue #4: 具体板块API issue
 
-### 8. LICENSE
+### 8. Test
+#### run test use makefile
+
+    make
+
+### 9. LICENSE
 
     MIT LICENSE
     see LICENSE for more details
