@@ -31,6 +31,7 @@ class APITestCase(unittest.TestCase):
         self.app_context.pop()
 
     def get_api_headers(self, username, password):
+        """basic Authorization & base 64 编码"""
         return {
             'Authorization':
                 'Basic' + b64encode(
@@ -40,7 +41,14 @@ class APITestCase(unittest.TestCase):
             'Content-Type': 'application/json'
         }
 
-        def test_no_auth(self):
-            """test no auth, just get"""
-            response = self.client.get(url_for('api.get_news'), content_type='application/json')
-            self.assertTrue(response.status_code == 200)
+    def test_no_auth(self):
+        """test no auth, just get"""
+        response = self.client.get(url_for('api.get_news'), content_type='application/json')
+        self.assertTrue(response.status_code == 200)
+
+    def test_create_user(self):
+        """test: use api to create a user"""
+
+
+    def test_create_news(self):
+        """test: use api to create a news"""
