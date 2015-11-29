@@ -110,6 +110,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(64), unique=True, index=True)
     username = db.Column(db.String(64), unique=True, index=True)
+    avatar = db.Column(db.String(64), index=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password_hash = db.Column(db.String(128))
     news = db.relationship('NewsPost', backref="author", lazy="dynamic")
@@ -229,7 +230,7 @@ class User(UserMixin, db.Model):
         s = Serializer(
             # 生成一个带寿命的jws
             current_app.config["SECRET_KEY"],  # SECRET_KEY is really important
-            expires_in=expiration
+            expiration
         )
         return s.dumps({'id': self.id}).decode('ascii')  # 签名json数据 {'id': self.id}
 

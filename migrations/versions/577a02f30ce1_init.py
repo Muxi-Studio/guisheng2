@@ -1,13 +1,13 @@
-"""v1
+"""init
 
-Revision ID: 80e7ca95d05
+Revision ID: 577a02f30ce1
 Revises: None
-Create Date: 2015-10-05 21:28:08.555857
+Create Date: 2015-11-29 10:19:08.628864
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '80e7ca95d05'
+revision = '577a02f30ce1'
 down_revision = None
 
 from alembic import op
@@ -29,16 +29,18 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('email', sa.String(length=64), nullable=True),
     sa.Column('username', sa.String(length=64), nullable=True),
+    sa.Column('avatar', sa.String(length=64), nullable=True),
     sa.Column('role_id', sa.Integer(), nullable=True),
     sa.Column('password_hash', sa.String(length=128), nullable=True),
     sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_users_avatar'), 'users', ['avatar'], unique=False)
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
     op.create_index(op.f('ix_users_username'), 'users', ['username'], unique=True)
     op.create_table('inters',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('title', sa.String(length=64), nullable=True),
+    sa.Column('title', sa.Text(), nullable=True),
     sa.Column('body_html', sa.Text(), nullable=True),
     sa.Column('body', sa.Text(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
@@ -49,7 +51,7 @@ def upgrade():
     op.create_index(op.f('ix_inters_timestamp'), 'inters', ['timestamp'], unique=False)
     op.create_table('news',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('title', sa.String(length=32), nullable=True),
+    sa.Column('title', sa.Text(), nullable=True),
     sa.Column('body_html', sa.Text(), nullable=True),
     sa.Column('body', sa.Text(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
@@ -60,7 +62,7 @@ def upgrade():
     op.create_index(op.f('ix_news_timestamp'), 'news', ['timestamp'], unique=False)
     op.create_table('origins',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('title', sa.String(length=64), nullable=True),
+    sa.Column('title', sa.Text(), nullable=True),
     sa.Column('body_html', sa.Text(), nullable=True),
     sa.Column('body', sa.Text(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
@@ -99,9 +101,9 @@ def upgrade():
     sa.Column('body_html', sa.Text(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.Column('author_id', sa.Integer(), nullable=True),
-    sa.Column('news_id', sa.Integer(), nullable=True),
+    sa.Column('origins_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['author_id'], ['users.id'], ),
-    sa.ForeignKeyConstraint(['news_id'], ['origins.id'], ),
+    sa.ForeignKeyConstraint(['origins_id'], ['origins.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_originsComments_timestamp'), 'originsComments', ['timestamp'], unique=False)
@@ -124,6 +126,7 @@ def downgrade():
     op.drop_table('inters')
     op.drop_index(op.f('ix_users_username'), table_name='users')
     op.drop_index(op.f('ix_users_email'), table_name='users')
+    op.drop_index(op.f('ix_users_avatar'), table_name='users')
     op.drop_table('users')
     op.drop_index(op.f('ix_roles_default'), table_name='roles')
     op.drop_table('roles')

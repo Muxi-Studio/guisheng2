@@ -40,12 +40,17 @@ def verify_password(email_or_token, password):
 
 
 @api.before_request
+@auth.login_required
 def before_request():
-    """run before the each request, and that's
-       all the route can get the login_required
-       and if you logged in, but you didn't have
-       confirmed account, and it will raise 403 error"""
-    pass
+    """
+    run before the each request, and that's
+    all the route can get the login_required
+    and if you logged in, but you didn't have
+    confirmed account, and it will raise 403 error
+    """
+    if not hasattr(g.current_user, "is_anonymous"):
+        # pass it to auth error
+        pass
 
 
 """error_handler decorater can help us generate json formate error easily"""
@@ -54,27 +59,29 @@ def auth_error():
     """验证错误处理(json数据格式)"""
     return unauthorized('Invalid credentials')
 
+
 @auth.error_handler
 def not_found_error():
     return not_found('Not found')
+
 
 @auth.error_handler
 def server_error_error():
     return server_error('Server error')
 
 
-@auth.login_required
 @api.route('/token', methods=["POST", "GET"])
+@auth.login_required
 def get_token():
     """token is just a serializer which include user info,
        what you need do is log in the url, and post to the token url
        get the token and use the token login, and that's, it is very
        eazy to tell you(use id), but secret key needed"""
-    if g.token_used:
+    if isinstance(g.current_user, AnonymousUser) or g.token_used:
         # that means you can not use token to get token
         return unauthorized('Invalid credentials')
     return jsonify({
         # use the serializer wrap the user id and secret_key
-        'token': g.current_user.generate_auth_token(expiration=3600),
+        'token': g.current_user.generate_auth_token(3600),
         'expiration': 3600  # timelimte json serializer
     })

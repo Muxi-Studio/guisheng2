@@ -6,6 +6,26 @@
     测试数据库
     测试API
 
+## Build
+### Virtual Environment
+
+  $ virtualenv venv
+  $ source venv/bin/activate
+
+### Install Extensions
+
+  $ pip install -r extensions.txt
+
+### Test Database
+
+  $ chmod 777 data.sh
+  $ ./data.sh
+
+### Run
+
+  $ python manage.py runserver (--help)
+
+
 ## 桂声API测试版文档
 ### 1. 预备
 #### 测试根url: http://121.43.230.104:5000/api/v1.0/
