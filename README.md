@@ -9,21 +9,21 @@
 ## Build
 ### Virtual Environment
 
-  $ virtualenv venv
-  $ source venv/bin/activate
+    $ virtualenv venv
+    $ source venv/bin/activate
 
 ### Install Extensions
 
-  $ pip install -r extensions.txt
+    $ pip install -r extensions.txt
 
 ### Test Database
 
-  $ chmod 777 data.sh
-  $ ./data.sh
+    $ chmod 777 data.sh
+    $ ./data.sh
 
 ### Run
 
-  $ python manage.py runserver (--help)
+    $ python manage.py runserver (--help)
 
 
 ## 桂声API测试版文档
