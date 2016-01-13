@@ -24,7 +24,7 @@
 """
 
 import os
-from app import create_app, db
+from app import app, db
 from app.models import User, Role, Permission, NewsPost, OriginsPost, \
         IntersPost, NewsComment, OriginsComment, IntersComment
 from flask.ext.script import Manager, Shell
@@ -44,9 +44,6 @@ if os.environ.get('FLASK_COVERAGE'):
     COV = coverage.coverage(branch=True, include='app/*')  # 覆盖分支以及app下的所有文件
     COV.start()
 
-
-# 定义覆盖后再创建app
-app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
 

@@ -22,6 +22,7 @@ from flask.ext.bootstrap import Bootstrap
 from flask.ext.mail import Mail
 from config import config
 
+config_name = 'default'
 
 # Flask app
 app = Flask(__name__)

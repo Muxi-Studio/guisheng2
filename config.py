@@ -29,11 +29,11 @@ class Config:
     MAIL_USE_TLS = True
     MAIL_USERNAME = 'webwebpy@163.com'
     MAIL_PASSWORD = os.environ.get("GUISHENG_MAIL_PASSWORD")
-    FLASKY_MAIL_SUBJECT_PREFIX = '[快乐的桂声后台]'
-    FLASKY_MAIL_SENDER = '桂声管理员 <webwebpy@163.com>'
-    FLASKY_ADMIN = 'webwebpy@163.com'
-    FLASKY_POSTS_PER_PAGE = 10
-    FLASKY_COMMENTS_PER_PAGE = 10
+    GUISHENGAPP_MAIL_SUBJECT_PREFIX = '[快乐的桂声后台]'
+    GUISHENGAPP_MAIL_SENDER = '桂声管理员 <webwebpy@163.com>'
+    GUISHENGAPP_ADMIN = 'webwebpy@163.com'
+    GUISHENGAPP_POSTS_PER_PAGE = 10
+    GUISHENGAPP_COMMENTS_PER_PAGE = 10
 
     @staticmethod
     def init_app(app):
