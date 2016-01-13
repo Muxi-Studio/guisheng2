@@ -60,17 +60,17 @@ class Role(db.Model):
             3.Administer: 管理员
         """
         roles = {
-            'User' : (
-                Permission.COMMENT |
-                Permission.WRITE_ARTICLES,
-                True),
-            'Moderator' : (
-                Permission.COMMENT |
-                Permission.WRITE_ARTICLES |
-                Permission.MODERATE_COMMENTS,
-                False),
-            'Administrator' : (0xff, False)
-        }
+                'User' : (
+                    Permission.COMMENT |
+                    Permission.WRITE_ARTICLES,
+                    True),
+                'Moderator' : (
+                    Permission.COMMENT |
+                    Permission.WRITE_ARTICLES |
+                    Permission.MODERATE_COMMENTS,
+                    False),
+                'Administrator' : (0xff, False)
+                }
         for r in roles:
             role = Role.query.filter_by(name=r).first()
             if role is None:
@@ -270,23 +270,23 @@ class NewsPost(db.Model):
                 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'img'
                 ]
         target.body_html = bleach.linkify(
-            bleach.clean(
-                markdown(value, output_format='html'),
-                tags=allowed_tags, strip=True
+                bleach.clean(
+                    markdown(value, output_format='html'),
+                    tags=allowed_tags, strip=True
+                    )
                 )
-            )
 
-    def to_json(self):
-        """ 将文章数据资源转换位json格式 """
+        def to_json(self):
+            """ 将文章数据资源转换位json格式 """
         json_news = {
-            'url': url_for("api.get_news", id=self.id, _external=True),
-            'title': self.title,
-            'body': self.body,
-            'body_html': self.body_html,
-            'author': url_for("api.get_user", id=self.author_id, _external=True),
-            'comments': url_for("api.get_news_comments", id=self.id, _external=True),
-            'timestamp': self.timestamp
-        }
+                'url': url_for("api.get_news", id=self.id, _external=True),
+                'title': self.title,
+                'body': self.body,
+                'body_html': self.body_html,
+                'author': url_for("api.get_user", id=self.author_id, _external=True),
+                'comments': url_for("api.get_news_comments", id=self.id, _external=True),
+                'timestamp': self.timestamp
+                }
         return json_news
 
     @staticmethod
@@ -442,17 +442,17 @@ class IntersPost(db.Model):
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
 
-        def to_json(self):
-            """json 格式的资源"""
+    def to_json(self):
+        """json 格式的资源"""
         json_inters = {
-                'url': url_for("api.get_inters", id=self.id, _external=True),
-                'title': self.title,
-                'body': self.body,
-                'body_html': self.body_html,
-                'author': url_for("api.get_user", id=self.author_id, _external=True),
-                'comments': url_for("api.get_inters_comments", id=self.id, _external=True),
-                'timestamp': self.timestamp
-                }
+            'url': url_for("api.get_inters", id=self.id, _external=True),
+            'title': self.title,
+            'body': self.body,
+            'body_html': self.body_html,
+            'author': url_for("api.get_user", id=self.author_id, _external=True),
+            'comments': url_for("api.get_inters_comments", id=self.id, _external=True),
+            'timestamp': self.timestamp
+            }
         return json_inters
 
     @staticmethod
@@ -489,22 +489,19 @@ class NewsComment(db.Model):
 
     def to_json(self):
         json_newsComment = {
-                'url': url_for('api.get_newscomment', id=self.id, _external=True),
-                'news': url_for('api.get_news', id=self.news_id, _external=True),
-                'body': self.body,
-                'body_html': self.body_html,
-                'timestamp': self.timestamp,
-                'author': url_for('api.get_user', id=self.author_id, _external=True),
+                'comment': self.body,
+                'date': self.timestamp,
+                'username': User.query.get_or_404(self.author_id).username,
+                'avatar': User.query.get_or_404(self.author_id).avatar_url
                 }
         return json_newsComment
 
     @staticmethod
     def from_json(json_newsComment):
-        body = json_newsComment.get('body')
+        body = json_newsComment.get('comment')
         if body is None or body == '':
-            raise ValidationError('评论不能为空哦!')
+            raise ValidationError('comment can not be empty! ')
         return NewsComment(body=body)
-
 
 db.event.listen(NewsComment.body, 'set', NewsComment.on_changed_body)
 
@@ -539,22 +536,20 @@ class OriginsComment(db.Model):
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
 
-        def to_json(self):
-            json_originsComment = {
-                    'url': url_for('api.get_originscomment', id=self.id, _external=True),
-                    'origins': url_for('api.get_origins', id=self.news_id, _external=True),
-                    'body': self.body,
-                    'body_html': self.body_html,
-                    'timestamp': self.timestamp,
-                    'author': url_for('api.get_user', id=self.author_id, _external=True),
-                    }
-            return json_originsComment
+    def to_json(self):
+        json_originsComment = {
+            'comment': self.body,
+            'date': self.timestamp,
+            'avatar': User.query.get_or_404(self.author_id).avatar_url,
+            'username': User.query.get_or_404(self.author_id).username
+            }
+        return json_originsComment
 
     @staticmethod
     def from_json(json_originsComment):
-        body = json_originsComment.get('body')
+        body = json_originsComment.get('comment')
         if body is None or body == '':
-            raise ValidationError('评论不能为空哦!')
+            raise ValidationError('comment can not be empty')
         return OriginsComment(body=body)
 
 db.event.listen(OriginsComment.body, 'set', OriginsComment.on_changed_body)
@@ -590,22 +585,20 @@ class IntersComment(db.Model):
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
 
-        def to_json(self):
-            json_intersComment = {
-                    'url': url_for('api.get_interscomment', id=self.id, _external=True),
-                    'inters': url_for('api.get_inters', id=self.news_id, _external=True),
-                    'body': self.body,
-                    'body_html': self.body_html,
-                    'timestamp': self.timestamp,
-                    'author': url_for('api.get_user', id=self.author_id, _external=True),
-                    }
-            return json_intersComment
+    def to_json(self):
+        json_intersComment = {
+            'comment': self.body,
+            'date': self.timestamp,
+            'username': User.query.get_or_404(self.author_id).username,
+            'avatar': User.query.get_or_404(self.author_id).avatar_url
+            }
+        return json_intersComment
 
     @staticmethod
     def from_json(json_intersComment):
-        body = json_intersComment.get('body')
+        body = json_intersComment.get('comment')
         if body is None or body == '':
-            raise ValidationError('评论不能为空哦!')
+            raise ValidationError('comment can not be empty')
         return IntersComment(body=body)
 
 db.event.listen(IntersComment.body, 'set', IntersComment.on_changed_body)

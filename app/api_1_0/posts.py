@@ -28,7 +28,7 @@ def get_news():
     page = request.args.get('page', 1, type = int)
     pagination = NewsPost.query.paginate(
         page,  # show page one by default
-        per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        per_page=current_app.config['GUISHENGAPP_POSTS_PER_PAGE'],
         error_out=False
     )
     news = pagination.items
@@ -53,7 +53,7 @@ def get_origins():
     page = request.args.get('page', 1, type=int)
     pagination = OriginsPost.query.paginate(
         page,
-        per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        per_page=current_app.config['GUISHENGAPP_POSTS_PER_PAGE'],
         error_out=False
     )
     origins = pagination.items
@@ -76,7 +76,7 @@ def get_inters():
     page = request.args.get('page', 1, type=int)
     pagination = IntersPost.query.paginate(
         page,
-        per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        per_page=current_app.config['GUISHENGAPP_POSTS_PER_PAGE'],
         error_out=False
     )
     inters = pagination.items

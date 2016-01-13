@@ -22,9 +22,9 @@ class Config:
         3.  邮件配置
         4.  分页配置
     """
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'I hate flask'
-    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
-    MAIL_SERVER = 'smtp.163.com'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'I hate flask'         # =>
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True                                # =>
+    MAIL_SERVER = 'smtp.163.com'                                        # =>
     MAIL_PORT = 25
     MAIL_USE_TLS = True
     MAIL_USERNAME = 'webwebpy@163.com'
