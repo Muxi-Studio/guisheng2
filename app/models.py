@@ -279,17 +279,16 @@ class NewsPost(db.Model):
                     )
                 )
 
-        def to_json(self):
-            """ 将文章数据资源转换位json格式 """
+    def to_json(self):
+        """ 将文章数据资源转换为json格式 """
         json_news = {
-                'url': url_for("api.get_news", id=self.id, _external=True),
-                'title': self.title,
-                'body': self.body,
-                'body_html': self.body_html,
-                'author': url_for("api.get_user", id=self.author_id, _external=True),
-                'comments': url_for("api.get_news_comments", id=self.id, _external=True),
-                'timestamp': self.timestamp
-                }
+            'id': self.id,
+            'title': self.title,
+            'content': self.body,
+            # 'body_html': self.body_html,
+            'writer': url_for("api.get_user", id=self.author_id, _external=True),
+            'date': self.timestamp
+        }
         return json_news
 
     @staticmethod
@@ -362,17 +361,16 @@ class OriginsPost(db.Model):
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
 
-        def to_json(self):
-            """json 格式的资源"""
+    def to_json(self):
+        """json 格式的资源"""
         json_origins = {
-                'url': url_for("api.get_origins", id=self.id, _external=True),
-                'title': self.title,
-                'body': self.body,
-                'body_html': self.body_html,
-                'author': url_for("api.get_user", id=self.author_id, _external=True),
-                'comments': url_for("api.get_origins_comments", id=self.id, _external=True),
-                'timestamp': self.timestamp
-                }
+            'id': self.id,
+            'title': self.title,
+            'content': self.body,
+            # 'body_html': self.body_html,
+            'writer': url_for("api.get_user", id=self.author_id, _external=True),
+            'date': self.timestamp
+        }
         return json_origins
 
     @staticmethod
@@ -448,13 +446,12 @@ class IntersPost(db.Model):
     def to_json(self):
         """json 格式的资源"""
         json_inters = {
-            'url': url_for("api.get_inters", id=self.id, _external=True),
+            'id': self.id,
             'title': self.title,
-            'body': self.body,
-            'body_html': self.body_html,
-            'author': url_for("api.get_user", id=self.author_id, _external=True),
-            'comments': url_for("api.get_inters_comments", id=self.id, _external=True),
-            'timestamp': self.timestamp
+            'content': self.body,
+            # 'body_html': self.body_html,
+            'writer': url_for("api.get_user", id=self.author_id, _external=True),
+            'date': self.timestamp
             }
         return json_inters
 
