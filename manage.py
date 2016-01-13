@@ -29,6 +29,8 @@ from app.models import User, Role, Permission, NewsPost, OriginsPost, \
         IntersPost, NewsComment, OriginsComment, IntersComment
 from flask.ext.script import Manager, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
+from flask_admin import AdminIndexView, Admin, BaseView, expose
+from flask_admin.contrib.sqla import ModelView
 import sys
 
 
@@ -66,6 +68,21 @@ def make_shell_context():
 
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
+
+
+admin = Admin(
+	app, name="桂声APP测试后台",
+    template_mode="bootstrap3",
+)
+admin.add_view(ModelView(User, db.session))
+admin.add_view(ModelView(Role, db.session))
+# admin.add_view(ModelView(Permission, db.session))
+admin.add_view(ModelView(NewsPost, db.session))
+admin.add_view(ModelView(OriginsPost, db.session))
+admin.add_view(ModelView(IntersPost, db.session))
+admin.add_view(ModelView(NewsComment, db.session))
+admin.add_view(ModelView(OriginsComment, db.session))
+admin.add_view(ModelView(IntersComment, db.session))
 
 
 @manager.command
