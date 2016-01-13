@@ -14,7 +14,6 @@ from .authentication import auth
 from flask import jsonify, request, g, url_for, current_app
 from ..models import NewsPost, OriginsPost, IntersPost, Permission, NewsComment, IntersComment, OriginsComment
 from .decorators import permission_required # <-- 那个邻家的超级无敌可爱装饰器`` # <-- (突然发现我那时候好😓 )
-from flask_login import login_required
 
 
 # @api.route('/newscomments/')

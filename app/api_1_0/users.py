@@ -12,7 +12,9 @@
 from flask import jsonify, request, current_app, url_for
 from . import api
 from app import db
+from .authentication import auth
 from ..models import User, NewsPost, OriginsPost, IntersPost
+from ..decorators import permission_required
 
 
 @api.route('/users/<int:id>/')
@@ -53,6 +55,7 @@ def get_users():
 
 
 @api.route('/users/', methods=['GET', 'POST'])
+@auth.login_required
 def new_user():
     """ 注册一个用户 """
     user = User.from_json(request.json)
@@ -62,6 +65,7 @@ def new_user():
 
 
 @api.route('/users/<int:id>/', methods=['GET', 'PUT'])
+@auth.login_required
 def update_user(id):
     """ 更新用户信息 """
     user = User.query.get_or_404(id)
