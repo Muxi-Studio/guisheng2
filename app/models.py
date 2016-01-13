@@ -110,10 +110,10 @@ class User(UserMixin, db.Model):
         seed()
         for i in range(count):
             u = User(
-                    email=forgery_py.internet.email_address(),
-                    username=forgery_py.internet.user_name(True),
-                    password=forgery_py.lorem_ipsum.word()
-                    )
+                email=forgery_py.internet.email_address(),
+                username=forgery_py.internet.user_name(True),
+                password=forgery_py.lorem_ipsum.word()
+                )
             db.session.add(u)
             try:
                 db.session.commit()
@@ -179,6 +179,7 @@ class User(UserMixin, db.Model):
     def to_json(self):
         """API 以json格式[提、存]数据"""
         json_user = {
+            'id': self.id,
             'username': self.username,
             'email': self.email,
             'avatar_url': self.avatar_url
@@ -491,6 +492,7 @@ class NewsComment(db.Model):
 
     def to_json(self):
         json_newsComment = {
+                'id': self.id,
                 'comment': self.body,
                 'date': self.timestamp,
                 'username': User.query.get_or_404(self.author_id).username,
@@ -540,6 +542,7 @@ class OriginsComment(db.Model):
 
     def to_json(self):
         json_originsComment = {
+            'id': self.id,
             'comment': self.body,
             'date': self.timestamp,
             'avatar': User.query.get_or_404(self.author_id).avatar_url,
@@ -589,6 +592,7 @@ class IntersComment(db.Model):
 
     def to_json(self):
         json_intersComment = {
+            'id': self.id,
             'comment': self.body,
             'date': self.timestamp,
             'username': User.query.get_or_404(self.author_id).username,
