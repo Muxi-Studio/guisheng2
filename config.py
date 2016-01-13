@@ -34,6 +34,7 @@ class Config:
     GUISHENGAPP_ADMIN = 'webwebpy@163.com'
     GUISHENGAPP_POSTS_PER_PAGE = 10
     GUISHENGAPP_COMMENTS_PER_PAGE = 10
+    GUISHENGAPP_USER_PER_PAGE = 10
 
     @staticmethod
     def init_app(app):

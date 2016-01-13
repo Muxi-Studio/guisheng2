@@ -179,19 +179,21 @@ class User(UserMixin, db.Model):
     def to_json(self):
         """API 以json格式[提、存]数据"""
         json_user = {
-                'url': url_for('api.get_news_id', id=self.id, _external=True),
-                'username': self.username,
-                'email': self.email,
-                'news': url_for('api.get_user_news', id=self.id, _external=True),
-                'origins': url_for('api.get_user_origins', id=self.id, _external=True),
-                'inters': url_for('api.get_user_inters', id=self.id, _external=True),
-                }
+            'username': self.username,
+            'email': self.email,
+            'avatar_url': self.avatar_url
+            }
         return json_user
 
     @staticmethod
     def from_json(json_user):
         """ 更新自request_body """
-        pass
+        return User(
+                username = json_user.get('username'),
+                email = json_user.get('email'),
+                password = json_user.get('password'),
+                avatar_url = json_user.get('avatar_url')
+            )
 
     def __repr__(self):
         return '<User %r>' % self.username
