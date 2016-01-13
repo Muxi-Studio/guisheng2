@@ -61,6 +61,21 @@ def new_user():
     return jsonify(user.to_json()), 201
 
 
+@api.route('/users/<int:id>/', methods=['GET', 'PUT'])
+def update_user(id):
+    """ 更新用户信息 """
+    user = User.query.get_or_404(id)
+    if request.method == 'PUT':
+        data_dict = eval(request.data)
+        user.username = data_dict.get('username', user.username)
+        user.email = data_dict.get('email', user.email)
+        user.avatar_url = data_dict.get('avatar_url', user.avatar_url)
+        user.password = data_dict.get('password', user.password_hash)
+        db.session.add(user)
+        db.session.commit()
+    return jsonify(user.to_json()), 200
+
+
 # @api.route('/users/<int:id>/news/')
 # def get_user_news(id):
 #     """获取特定作者发布的新闻文章集合"""
