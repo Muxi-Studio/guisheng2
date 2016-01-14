@@ -3,8 +3,15 @@ from . import main
 from flask import render_template, redirect, flash, url_for, request
 from flask_login import login_required, current_user, logout_user, login_user
 from .forms import LoginForm, EditForm
-from app.models import User, NewsPost
+from app.models import User, NewsPost, OriginsPost, IntersPost
 from app import db
+
+
+@main.route('/news/<int:id>/')
+@login_required
+def read_news(id):
+    news = NewsPost.query.get_or_404(id)
+    return render_template('main/news.html', news=news)
 
 
 @main.route('/login/', methods=["GET", "POST"])
@@ -35,7 +42,17 @@ def logout():
 @main.route('/dashboard/')
 @login_required
 def dashboard():
-    return render_template('main/dashboard.html')
+    """
+    展示:
+        1. 新闻文章 news
+        2. 原创图集 pics
+        3. 互动话题 topics
+    """
+    news = NewsPost.query.all()
+    pics = OriginsPost.query.all()
+    topics = IntersPost.query.all()
+    return render_template('main/dashboard.html',
+        news=news, pics=pics, topics=topics)
 
 
 @main.route('/news/', methods=['GET', 'POST'])

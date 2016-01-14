@@ -19,16 +19,13 @@
             </div>
           </div>
           <div class='panel-body'>
-            <div class='page-header'>
-              <h4>此区域待定</h4>
-            </div>
             <div class='progress'>
               <div class='progress-bar progress-bar-success' style='width: 35%'></div>
               <div class='progress-bar progress-bar-warning' style='width: 20%'></div>
               <div class='progress-bar progress-bar-danger' style='width: 10%'></div>
             </div>
             <div class='page-header'>
-              <h4> 动态一览(最近一个月发布) </h4>
+              <h2> 动态一览(最近一个月发布) </h2>
             </div>
             <div class='row text-center'>
               <div class='col-md-3'>
@@ -47,6 +44,31 @@
                 <input class='knob second' data-bgcolor='#f8d2e0' data-fgcolor='#b85e80' data-height='140' data-inputcolor='#333' data-thickness='.3' data-width='140' type='text' value='85'>
                 <h5> 用户评论 </h5>
               </div>
+            </div>
+            <hr>
+            <div class='form-group'>
+                <label class='control-label'><h4>[新闻文章]最近发布</h4></label>
+                <select class='form-control' multiple>
+                {% for new in news[:50] %}
+                <a href={{ url_for('main.read_news', id=new.id) }}><option>{{ new.title }}</option></a>
+                {% endfor %}
+                </select>
+            </div>
+            <div class='form-group'>
+                <label class='control-label'><h4>[原创图集]最近发布</h4></label>
+                <select class='form-control' multiple>
+                {% for pic in pics[:50] %}
+                    <a href='#'><option>{{ pic.title }}</option></a>
+                {% endfor %}
+                </select>
+            </div>
+            <div class='form-group'>
+                <label class='control-label'><h4>[互动话题]最近发布</h4></label>
+                <select class='form-control' multiple>
+                {% for topic in topics[:50] %}
+                    <a href='#'><option>{{ topic.title }}</option></a>
+                {% endfor %}
+                </select>
             </div>
           </div>
         </div>
