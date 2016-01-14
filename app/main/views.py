@@ -1,6 +1,6 @@
 # coding: utf-8
 from . import main
-from flask import render_template, redirect, flash, url_for
+from flask import render_template, redirect, flash, url_for, request
 from flask_login import login_required, current_user, logout_user, login_user
 from .forms import LoginForm, EditForm
 from app.models import User, NewsPost
@@ -16,7 +16,7 @@ def login():
             user.verify_password(form.password.data) \
                 and user.is_administrator():
             login_user(user)
-            return redirect(url_for('main.dashboard'))
+            return redirect(request.args.get('next') or url_for('main.dashboard'))
         else:
             flash("用户名或密码不存在")
     return render_template('main/index.html', form=form)
