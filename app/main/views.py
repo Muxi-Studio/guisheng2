@@ -1,93 +1,68 @@
-# coding: UTF-8
-
-"""
-	views.py
-	~~~~~~~~~
-		桂声app后台视图函数文件
-		后台功能实现
-"""
-
-from flask import render_template, url_for, redirect, request, flash, current_app
-from flask.ext.login import login_required, current_user
+# coding: utf-8
 from . import main
-from .forms import PostForm
-from .. import db
-from ..models import NewsPost, OriginsPost, IntersPost
+from flask import render_template, redirect, flash, url_for
+from flask_login import login_required, current_user, logout_user, login_user
+from .forms import LoginForm, EditForm
+from app.models import User, NewsPost
+from app import db
 
 
-# @login_required
-@main.route('/index', methods=['GET','POST'])
-@main.route('/', methods=['GET','POST'])
-def index():
-	"""url='/', 实现功能如下:
-	   1. 发布文章统计：依据时间排序
-	   2. 边栏统计发布文章最多的编辑
-	   3. 添加分页功能"""
-	page = request.args.get('page', 1, type=int)
-	pagination = NewsPost.query.order_by(NewsPost.timestamp.desc()).paginate(
-		page, per_page=current_app.config['GUISHENGAPP_POSTS_PER_PAGE'],
-		error_out=False
-	)
-	news = pagination.items
-	return render_template("index.html", news=news, pagination=pagination)
+@main.route('/login/', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()  # 采用邮箱登录
+        if user is not None and \
+            user.verify_password(form.password.data) \
+                and user.is_administrator():
+            login_user(user)
+            return redirect(url_for('main.dashboard'))
+        else:
+            flash("用户名或密码不存在")
+    return render_template('main/index.html', form=form)
 
 
-# @login_required
-@main.route("/news", methods=['GET','POST'])
+@main.route('/logout/')
+@login_required
+def logout():
+    """登出"""
+    logout_user()
+    flash('你已登出!')
+    return redirect(url_for('main.login'))
+
+
+@main.route('/')
+@main.route('/dashboard/')
+@login_required
+def dashboard():
+    return render_template('main/dashboard.html')
+
+
+@main.route('/news/', methods=['GET', 'POST'])
+@login_required
 def news():
-    """url:/news  func: 新闻编辑页面（实现数据的上传）"""
-    form = PostForm()
+    """
+    对新闻板块的操作
+    1. 发布新闻(ckeditor编辑器)
+    2. 删除新闻
+    """
+    form = EditForm()
     if form.validate_on_submit():
-        post = NewsPost(
-					title=form.title.data,
-			   		body=form.body.data,
-			   		author=current_user._get_current_object()
-		)
-        db.session.add(post)
-        flash("上传成功！")
-        return redirect(url_for(".index"))
-
-    return render_template('edit.html', form=form)
-
-
-# @login_required
-@main.route("/origins", methods=['GET','POST'])
-def origins():
-    """url:/origins  func: 原创编辑页面（实现数据的上传）"""
-    form = PostForm()
-    if form.validate_on_submit():
-        post = OriginsPost(
-					title=form.title.data,
-			   		body=form.body.data,
-			   		author=current_user._get_current_object()
-		)
-        db.session.add(post)
-        flash("上传成功！")
-        return redirect(url_for(".index"))
-
-    return render_template('edit.html', form=form)
+        news = NewsPost(
+            title = form.title.data,
+            body_html = form.post.data,
+            author_id = current_user.id,
+        )
+        db.session.add(news)
+        db.session.commit()
+        flash('新闻发布成功!')
+        return redirect(url_for('main.news'))
+    return render_template('main/forms.html', form=form)
 
 
-# @login_required
-@main.route("/inters", methods=['GET','POST'])
-def inters():
-    """url:/inters  func: 新闻编辑页面（实现数据的上传）"""
-    form = PostForm()
-    if form.validate_on_submit():
-        post = IntersPost(
-					title=form.title.data,
-			   		body=form.body.data,
-			   		author=current_user._get_current_object()
-		)
-        db.session.add(post)
-        flash("上传成功！")
-        return redirect(url_for(".index"))
-
-    return render_template('edit.html', form=form)
-
-
-@main.route('/ckupload/', methods=["POST", "GET"])
+# 开启ckeditor上传接口
+@main.route('/ckupload/')
 def ckupload():
-    form = PostForm()
+    form = EditForm()
     response = form.upload(endpoint=main)
     return response

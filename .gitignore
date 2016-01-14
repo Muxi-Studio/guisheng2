@@ -4,5 +4,6 @@
 -1
 
 venv/
+guishengapp_venv/
 migrations/
 data-dev.sqlite
