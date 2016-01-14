@@ -6,7 +6,7 @@
 
 	登录模块表单
 """
-from flask.ext.wtf import Form
+from flask_wtf import Form
 from wtforms import SubmitField, PasswordField, BooleanField, StringField
 from wtforms.validators import Required, Length, Email, Regexp, EqualTo
 from wtforms import ValidationError

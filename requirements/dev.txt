@@ -6,3 +6,4 @@ httpie==0.7.2
 requests==2.1.0
 yapf==0.6.0
 coverage
+flask-admin

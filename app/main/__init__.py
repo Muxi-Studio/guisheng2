@@ -10,7 +10,7 @@
 """
 from flask import Blueprint
 
-main = Blueprint('main', __name__,static_folder="~/www/project/guisheng/app/static") # static_folder: 静态文件存储目录
+main = Blueprint('main', __name__,static_folder="/root/www/guishengapp/app/static") # static_folder: 静态文件存储目录
 
 from . import views, errors
 from ..models import Permission
