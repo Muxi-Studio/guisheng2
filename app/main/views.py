@@ -15,7 +15,7 @@ from .. import db
 from ..models import NewsPost, OriginsPost, IntersPost
 
 
-@login_required
+# @login_required
 @main.route('/index', methods=['GET','POST'])
 @main.route('/', methods=['GET','POST'])
 def index():
@@ -25,14 +25,14 @@ def index():
 	   3. 添加分页功能"""
 	page = request.args.get('page', 1, type=int)
 	pagination = NewsPost.query.order_by(NewsPost.timestamp.desc()).paginate(
-		page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+		page, per_page=current_app.config['GUISHENGAPP_POSTS_PER_PAGE'],
 		error_out=False
 	)
 	news = pagination.items
 	return render_template("index.html", news=news, pagination=pagination)
 
 
-@login_required
+# @login_required
 @main.route("/news", methods=['GET','POST'])
 def news():
     """url:/news  func: 新闻编辑页面（实现数据的上传）"""
@@ -50,7 +50,7 @@ def news():
     return render_template('edit.html', form=form)
 
 
-@login_required
+# @login_required
 @main.route("/origins", methods=['GET','POST'])
 def origins():
     """url:/origins  func: 原创编辑页面（实现数据的上传）"""
@@ -68,7 +68,7 @@ def origins():
     return render_template('edit.html', form=form)
 
 
-@login_required
+# @login_required
 @main.route("/inters", methods=['GET','POST'])
 def inters():
     """url:/inters  func: 新闻编辑页面（实现数据的上传）"""
