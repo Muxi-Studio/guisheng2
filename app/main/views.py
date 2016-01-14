@@ -7,7 +7,7 @@ from app.models import User, NewsPost
 from app import db
 
 
-@main.route('/login/', methods=['GET', 'POST'])
+@main.route('/login/', methods=["GET", "POST"])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
