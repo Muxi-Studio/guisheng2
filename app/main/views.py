@@ -7,13 +7,7 @@ from app.models import User, NewsPost, OriginsPost, IntersPost
 from app import db
 
 
-@main.route('/news/<int:id>/')
-@login_required
-def read_news(id):
-    news = NewsPost.query.get_or_404(id)
-    return render_template('main/news.html', news=news)
-
-
+"""登录"""
 @main.route('/login/', methods=["GET", "POST"])
 def login():
     form = LoginForm()
@@ -29,6 +23,7 @@ def login():
     return render_template('main/index.html', form=form)
 
 
+"""登出"""
 @main.route('/logout/')
 @login_required
 def logout():
@@ -38,6 +33,7 @@ def logout():
     return redirect(url_for('main.login'))
 
 
+"""首页[R, D, U]"""
 @main.route('/')
 @main.route('/dashboard/')
 @login_required
@@ -55,6 +51,7 @@ def dashboard():
         news=news, pics=pics, topics=topics)
 
 
+"""新闻发布页[C]"""
 @main.route('/news/', methods=['GET', 'POST'])
 @login_required
 def news():
@@ -77,7 +74,15 @@ def news():
     return render_template('main/forms.html', form=form)
 
 
-# 开启ckeditor上传接口
+"""特定的新闻阅读[R]"""
+@main.route('/read_news/<int:id>/')
+# @login_required
+def read(id):
+    news = NewsPost.query.get_or_404(id)
+    return render_template('main/news.html', news=news)
+
+
+"""开启ckeditor上传接口"""
 @main.route('/ckupload/')
 def ckupload():
     form = EditForm()

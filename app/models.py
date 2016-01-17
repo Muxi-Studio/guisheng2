@@ -219,6 +219,9 @@ class AnonymousUser(AnonymousUserMixin):
     def is_administrator(self):
         return False
 
+    def __repr__(self):
+        return "<AnonymousUser>"
+
 login_manager.anonymous_user = AnonymousUser
 
 
@@ -297,6 +300,9 @@ class NewsPost(db.Model):
         if body is None or body == '':
             raise ValidationError('文章没有内容哦!')
         return NewsPost(body=body)
+
+    def __repr__(self):
+        return "<NewsPost %r>" % (self.id)
 
 db.event.listen(NewsPost.body, 'set', NewsPost.on_changed_body)
 

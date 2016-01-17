@@ -1,12 +1,17 @@
-{% extends 'main/base.html' %}
+{% extends 'main/base1.html' %}
 {% block content %}
-    <div id='content'>
+<div id='content'>
     <div class='panel panel-default'>
         <div class='panel-heading'>
         <i class='icon-edit icon-large'></i>
         {{ news.title }}
         </div>
         <div class='panel-body'>
-            {{ news.body }}
+            <!--script>
+                document.write({{ news.body_html }});
+            </script-->
+            <h4>{{ news.body_html }}</h4>
         </div>
+    </div>
+</div>
 {% endblock %}

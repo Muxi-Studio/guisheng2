@@ -72,5 +72,6 @@ def get_token():
         return unauthorized('Invalid credentials')  # => in json format
     return jsonify({
         'token': g.current_user.generate_auth_token(3600),
-        'expiration': 3600
+        'expiration': 3600,
+        'id' : g.current_user.id
     })
