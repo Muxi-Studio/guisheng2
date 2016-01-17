@@ -12,7 +12,7 @@
 
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer  # 带时间的json web 签名(jws)
+from itsdangerous import JSONWebSignatureSerializer as Serializer
 from flask import current_app, url_for
 from . import db, login_manager
 from markdown import markdown
@@ -153,7 +153,7 @@ class User(UserMixin, db.Model):
     @property
     def password(self):
         """password是只写属性，只能被转化为散列值,所以试图读取password时就会报错!"""
-        raise AttributeError('已加密，不是可读形式!')
+        pass
 
     @password.setter  # @property生成setter装饰器,限定password
     def password(self, password):
@@ -176,8 +176,9 @@ class User(UserMixin, db.Model):
         """
         return check_password_hash(self.password_hash, password)
 
-    def generate_email_change_token(self, new_email, expiration=3600):
-        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+    def generate_email_change_token(self, new_email):
+        # token 的应用
+        s = Serializer(current_app.config['SECRET_KEY'])
         return s.dumps({'change_email': self.id, 'new_email': new_email})
 
     def change_email(self, token):
@@ -224,12 +225,11 @@ class User(UserMixin, db.Model):
 
     在传输过程中使用签名加密用户信息，前提是密钥不被泄漏
     """
-    def generate_auth_token(self, expiration):
+    def generate_auth_token(self):
         """用用户的id生成token"""
         s = Serializer(
             # 生成一个带寿命的jws
-            current_app.config["SECRET_KEY"],  # SECRET_KEY is really important
-            expires_in=expiration
+            current_app.config["SECRET_KEY"]  # SECRET_KEY is really important
         )
         return s.dumps({'id': self.id}).decode('ascii')  # 签名json数据 {'id': self.id}
 

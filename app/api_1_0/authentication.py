@@ -10,6 +10,7 @@
 
 from flask import g, jsonify
 from flask.ext.httpauth import HTTPBasicAuth
+from flask.ext.login import current_user
 from . import api
 from ..models import User, AnonymousUser
 from .errors import unauthorized, forbidden, not_found, server_error
@@ -40,14 +41,16 @@ def verify_password(email_or_token, password):
 
 
 @api.before_request
-@auth.login_required
 def before_request():
     """run before the each request, and that's
-       all the route can get the login_required
-       and if you logged in, but you didn't have
-       confirmed account, and it will raise 403 error"""
-    if g.current_user.is_anonymous:
-       return forbidden('Unconfirmed account')
+        all the route can get the login_required
+        and if you logged in, but you didn't have
+        confirmed account, and it will raise 403 error"""
+    # g.current_user = current_user
+    # if g.current_user.is_anonymous:
+    #    return forbidden('Unconfirmed account')
+    # 为了让匿名用户可以浏览信息, 所以这里取消了对匿名用户的限制
+    pass
 
 
 """error_handler decorater can help us generate json formate error easily"""
@@ -65,8 +68,8 @@ def server_error_error():
     return server_error('Server error')
 
 
-@auth.login_required
 @api.route('/token', methods=["POST", "GET"])
+@auth.login_required
 def get_token():
     """token is just a serializer which include user info,
        what you need do is log in the url, and post to the token url
@@ -77,6 +80,6 @@ def get_token():
         return unauthorized('Invalid credentials')
     return jsonify({
         # use the serializer wrap the user id and secret_key
-        'token': g.current_user.generate_auth_token(expiration=3600),
-        'expiration': 3600  # timelimte json serializer
+        'token': g.current_user.generate_auth_token(),
+        'id': g.current_user.id
     })
