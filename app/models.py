@@ -4,21 +4,26 @@
 """
     models.py
     ~~~~~~~~~
+
         桂声app数据库文件
         author: neo1218
         from: muxi studio
-        licence:
+        licence: MIT
 """
 
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+<<<<<<< HEAD
 from itsdangerous import JSONWebSignatureSerializer as Serializer
+=======
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+>>>>>>> 42ca2786107ed5086652c88cd129d4ac46084221
 from flask import current_app, url_for
 from . import db, login_manager
 from markdown import markdown
 from app.exceptions import ValidationError
-import bleach
 from flask.ext.login import UserMixin, AnonymousUserMixin
+import bleach
 # 实现 flask-login 的默认方法
 # is_authenticated(): 如果用户已经登录返回 True，否则返回 False
 # is_active(): 如果允许用户登录返回 True, 否则返回 False, 禁用用户账户返回 False
@@ -28,9 +33,8 @@ from flask.ext.login import UserMixin, AnonymousUserMixin
 
 class Permission:
     """
-    Permission类:
-
-        用户权限类
+    用户权限类 => 权限表:
+        (16进制的用户表示法)
         1.COMMENT 评论权限
         2.WRITE_ARTICLES 写文章权限
         3.MODERATE_COMMENT 删除评论的权限
@@ -43,16 +47,7 @@ class Permission:
 
 
 class Role(db.Model):
-    """
-    Role类:
-
-        用户角色类
-        id: 主键
-        name: 角色的名字
-        default: 默认角色
-        permission: id 角色对应的权限
-        users: 属性 反向查找user
-    """
+    """ 用户角色类 """
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
@@ -60,68 +55,58 @@ class Role(db.Model):
     permissions = db.Column(db.Integer)
     users = db.relationship('User', backref='role', lazy='dynamic')
 
-    @staticmethod  # 静态方法,可以被类直接调用
+    @staticmethod
     def insert_roles():
         """
         插入角色
             1.User: 可以评论、写文章 true(默认)
             2.Moderator: 可以评论写文章,删除评论
-            3.Administer: 管理员(想干什么干什么)
-            # 其实还有我: 直接操纵数据库:)
+            3.Administer: 管理员
         """
         roles = {
-            'User': (Permission.COMMENT |
-                     Permission.WRITE_ARTICLES, True),
-            'Moderator': (Permission.COMMENT |
-                          Permission.WRITE_ARTICLES |
-                          Permission.MODERATE_COMMENTS, False),
-            'Administrator': (0xff, False)
-        }
+                'User' : (
+                    Permission.COMMENT |
+                    Permission.WRITE_ARTICLES,
+                    True),
+                'Moderator' : (
+                    Permission.COMMENT |
+                    Permission.WRITE_ARTICLES |
+                    Permission.MODERATE_COMMENTS,
+                    False),
+                'Administrator' : (0xff, False)
+                }
         for r in roles:
             role = Role.query.filter_by(name=r).first()
             if role is None:
                 role = Role(name=r)
             role.permissions = roles[r][0]
             role.default = roles[r][1]
-            db.session.add(role)  # 添加进数据库
-        db.session.commit()  # 提交
+            db.session.add(role)
+        db.session.commit()
 
     def __repr__(self):
-        """该类的'官方'表示方法"""
         return '<Role %r>' % self.name
 
 
 class User(UserMixin, db.Model):
-    """
-    User类:
-
-        用户类
-        id: 主键
-        email: 用户的邮箱地址(此地址用于用户找回密码，无需进行邮箱验证)
-        username: 用户名
-        password_hash: 用户密码
-        avatar: 头像url
-        role_id: 指向用户角色的外键
-        news: 属性 用户发布的新闻文章
-        origins: 属性 用户发布的原创文章
-        inters: 属性 用户发布的互动文章
-    """
+    """ 用户类 """
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(64), unique=True, index=True)
     username = db.Column(db.String(64), unique=True, index=True)
+    avatar_url = db.Column(db.String(64), index=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password_hash = db.Column(db.String(128))
-    news = db.relationship('NewsPost', backref="author", lazy="dynamic")
-    origins = db.relationship("OriginsPost", backref="author", lazy="dynamic")
-    inters = db.relationship("IntersPost", backref="author", lazy="dynamic")
-    news_comment = db.relationship('NewsComment', backref="author", lazy="dynamic")
-    origins_comment = db.relationship('OriginsComment', backref="author", lazy="dynamic")
-    inters_comment = db.relationship('IntersComment', backref="author", lazy="dynamic")
+    news = db.relationship('NewsPost', backref="author", lazy="dynamic")                    # 用户(编辑)发布的新闻
+    origins = db.relationship("OriginsPost", backref="author", lazy="dynamic")              # 用户(编辑)发布的原创
+    inters = db.relationship("IntersPost", backref="author", lazy="dynamic")                # 用户(编辑)发布的互动
+    news_comment = db.relationship('NewsComment', backref="author", lazy="dynamic")         # 用户(编辑)发布的新闻评论
+    origins_comment = db.relationship('OriginsComment', backref="author", lazy="dynamic")   # 用户(编辑)发布的原创评论
+    inters_comment = db.relationship('IntersComment', backref="author", lazy="dynamic")     # 用户(编辑)发布的互动评论
 
     @staticmethod
     def generate_fake(count=100):
-        """添加100虚拟数据"""
+        """生成100虚拟数据"""
         from sqlalchemy.exc import IntegrityError
         from random import seed
         import forgery_py
@@ -132,7 +117,7 @@ class User(UserMixin, db.Model):
                 email=forgery_py.internet.email_address(),
                 username=forgery_py.internet.user_name(True),
                 password=forgery_py.lorem_ipsum.word()
-            )
+                )
             db.session.add(u)
             try:
                 db.session.commit()
@@ -140,42 +125,40 @@ class User(UserMixin, db.Model):
                 db.session.rollback()
 
     def __init__(self, **kwargs):
-        """检查用户邮箱是否是环境变量设置的管理员邮箱,若是则管理员,否则是默认"""
-        # 超类构造器(简化参数调用,不受Column的限制)
+        """ 设置用户权限 """
         super(User, self).__init__(**kwargs)
         if self.role is None:
-            if self.email == current_app.config['FLASKY_ADMIN']:
+            if self.email == current_app.config['GUISHENGAPP_ADMIN']:
+                # admin root
                 self.role = Role.query.filter_by(permissions=0xff).first()
             if self.role is None:
+                # default user
                 self.role = Role.query.filter_by(default=True).first()
 
-    # 设定 password 为只写属性
     @property
     def password(self):
+<<<<<<< HEAD
         """password是只写属性，只能被转化为散列值,所以试图读取password时就会报错!"""
         pass
+=======
+        """ 无法读取password原始值 """
+        raise AttributeError('无法读取密码明文!')
+>>>>>>> 42ca2786107ed5086652c88cd129d4ac46084221
 
-    @password.setter  # @property生成setter装饰器,限定password
+    @password.setter
     def password(self, password):
         """
-        对密码进行hash加密,加密的过程是单向的,用户输入得到相同的结果与数据库进行比对
-        每当一个user新建时调用该函数
-
-        generate_password_hash(password, method=pbkdf2:sha1, salt_length=8)
-        将用户的密码作为输入值，通过 method　传递回密码散列值的字符串形式
+        将用户输入的密码单向加密后存入数据库
         """
         self.password_hash = generate_password_hash(password)
 
     def verify_password(self, password):
         """
-        验证密码
-            每当需要验证密码的时候调用该函数
-
-        check_password_hash(hash, password)
-        将密码散列值 与　用户输入密码比对
+        将用户输入的密码进行加密,并与数据库中的密码密值进行比对
         """
         return check_password_hash(self.password_hash, password)
 
+<<<<<<< HEAD
     def generate_email_change_token(self, new_email):
         # token 的应用
         s = Serializer(current_app.config['SECRET_KEY'])
@@ -199,14 +182,18 @@ class User(UserMixin, db.Model):
         db.session.add(self)
         return True
 
+=======
+>>>>>>> 42ca2786107ed5086652c88cd129d4ac46084221
     def can(self, permissions):
-        """用户角色对应的权限与希望其使用的权限一致"""
+        """ 用户可以做什么 """
         return self.role is not None and \
-            (self.role.permissions & permissions) == permissions
+                (self.role.permissions & permissions) == permissions
 
     def is_administrator(self):
+        """ 确定用户是不是管理员 """
         return self.can(Permission.ADMINISTER)
 
+<<<<<<< HEAD
     def to_json(self):
         """API 以json格式[提、存]数据"""
         json_user = {
@@ -232,19 +219,47 @@ class User(UserMixin, db.Model):
             current_app.config["SECRET_KEY"]  # SECRET_KEY is really important
         )
         return s.dumps({'id': self.id}).decode('ascii')  # 签名json数据 {'id': self.id}
+=======
+    def generate_auth_token(self, expiration):
+        """ 生成验证token:验证字段id """
+        s = Serializer(
+                current_app.config["SECRET_KEY"],
+                expiration
+                )
+        return s.dumps({'id': self.id}).decode('ascii')
+>>>>>>> 42ca2786107ed5086652c88cd129d4ac46084221
 
     @staticmethod
     def verify_auth_token(token):
-        """验证token"""
-        s = Serializer(current_app.config["SECRET_KEY"])  # 相同的盐
+        """ 验证token, 获取用户 """
+        s = Serializer(current_app.config["SECRET_KEY"])
         try:
-            data = s.loads(token)  # 解签名{'id': self.id}
+            data = s.loads(token)
         except:
             return None
-        return User.query.get(data['id'])  # User 是一个数据,query就是数据库查询函数
+        return User.query.get(data['id'])
+
+    def to_json(self):
+        """API 以json格式[提、存]数据"""
+        json_user = {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'avatar_url': self.avatar_url
+            }
+        return json_user
+
+    @staticmethod
+    def from_json(json_user):
+        """ 更新自request_body """
+        return User(
+                username = json_user.get('username'),
+                email = json_user.get('email'),
+                password = json_user.get('password'),
+                avatar_url = json_user.get('avatar_url')
+            )
 
     def __repr__(self):
-        """User类的官方字符串显示"""
         return '<User %r>' % self.username
 
 
@@ -267,14 +282,15 @@ class AnonymousUser(AnonymousUserMixin):
     def is_administrator(self):
         return False
 
+    def __repr__(self):
+        return "<AnonymousUser>"
+
 login_manager.anonymous_user = AnonymousUser
 
 
 class NewsPost(db.Model):
     """
-        NewsPost类
-
-            新闻文章类
+        新闻文章类:
             id: 主键
             title: 标题
             body_html: 文章内容的html格式
@@ -285,12 +301,12 @@ class NewsPost(db.Model):
     """
     __tablename__ = "news"
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.Text)  # 给了很大的空间(汉字占用字节大)
+    title = db.Column(db.Text)
     body_html = db.Column(db.Text)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    comments = db.relationship("NewsComment", backref="news", lazy="dynamic")  # backref的值待定(评论在这里比较特殊)
+    comments = db.relationship("NewsComment", backref="news", lazy="dynamic")
 
     @staticmethod
     def generate_fake(count=100):
@@ -303,40 +319,41 @@ class NewsPost(db.Model):
         for i in range(count):
             u = User.query.offset(randint(0, user_count - 1)).first()
             p = NewsPost(
-                title=forgery_py.lorem_ipsum.title(randint(1, 5)),
-                body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
-                timestamp=forgery_py.date.date(True),
-                author=u
-            )
+                    title=forgery_py.lorem_ipsum.title(randint(1, 5)),
+                    body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
+                    timestamp=forgery_py.date.date(True),
+                    author=u
+                    )
             db.session.add(p)
             db.session.commit()
 
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
         """
-        markdown 文本框中允许使用的html标签
-        用户插入的一些html标签可能是不安全的
+        使用bleach clean用户输入的markdown
+        ========  以及自动链接url ========
         """
         allowed_tags = [
-            'a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
-            'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'img'
-        ]
-        # 自动过滤其余标签
-        target.body_html = bleach.linkify(bleach.clean(
-            markdown(value, output_format='html'),
-            tags=allowed_tags, strip=True))
+                'a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+                'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+                'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'img'
+                ]
+        target.body_html = bleach.linkify(
+                bleach.clean(
+                    markdown(value, output_format='html'),
+                    tags=allowed_tags, strip=True
+                    )
+                )
 
     def to_json(self):
-        """json 格式的资源"""
+        """ 将文章数据资源转换为json格式 """
         json_news = {
-            'url': url_for("api.get_news", id=self.id, _external=True),
+            'id': self.id,
             'title': self.title,
-            'body': self.body,
-            'body_html': self.body_html,
-            'author': url_for("api.get_user", id=self.author_id, _external=True),
-            'comments': url_for("api.get_news_comments", id=self.id, _external=True),
-            'timestamp': self.timestamp
+            'content': self.body,
+            # 'body_html': self.body_html,
+            'writer': url_for("api.get_user", id=self.author_id, _external=True),
+            'date': self.timestamp
         }
         return json_news
 
@@ -346,6 +363,9 @@ class NewsPost(db.Model):
         if body is None or body == '':
             raise ValidationError('文章没有内容哦!')
         return NewsPost(body=body)
+
+    def __repr__(self):
+        return "<NewsPost %r>" % (self.id)
 
 db.event.listen(NewsPost.body, 'set', NewsPost.on_changed_body)
 
@@ -386,11 +406,11 @@ class OriginsPost(db.Model):
         for i in range(count):
             u = User.query.offset(randint(0, user_count - 1)).first()
             p = OriginsPost(
-                title=forgery_py.lorem_ipsum.title(randint(1, 5)),
-                body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
-                timestamp=forgery_py.date.date(True),
-                author=u
-            )
+                    title=forgery_py.lorem_ipsum.title(randint(1, 5)),
+                    body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
+                    timestamp=forgery_py.date.date(True),
+                    author=u
+                    )
             db.session.add(p)
             db.session.commit()
 
@@ -401,10 +421,10 @@ class OriginsPost(db.Model):
         用户插入的一些html标签可能是不安全的
         """
         allowed_tags = [
-            'a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
-            'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'img'
-        ]
+                'a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+                'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+                'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'img'
+                ]
         # 自动过滤其余标签
         target.body_html = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'),
@@ -413,13 +433,12 @@ class OriginsPost(db.Model):
     def to_json(self):
         """json 格式的资源"""
         json_origins = {
-            'url': url_for("api.get_origins", id=self.id, _external=True),
+            'id': self.id,
             'title': self.title,
-            'body': self.body,
-            'body_html': self.body_html,
-            'author': url_for("api.get_user", id=self.author_id, _external=True),
-            'comments': url_for("api.get_origins_comments", id=self.id, _external=True),
-            'timestamp': self.timestamp
+            'content': self.body,
+            # 'body_html': self.body_html,
+            'writer': url_for("api.get_user", id=self.author_id, _external=True),
+            'date': self.timestamp
         }
         return json_origins
 
@@ -469,11 +488,11 @@ class IntersPost(db.Model):
         for i in range(count):
             u = User.query.offset(randint(0, user_count - 1)).first()
             p = IntersPost(
-                title=forgery_py.lorem_ipsum.title(randint(1, 5)),
-                body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
-                timestamp=forgery_py.date.date(True),
-                author=u
-            )
+                    title=forgery_py.lorem_ipsum.title(randint(1, 5)),
+                    body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
+                    timestamp=forgery_py.date.date(True),
+                    author=u
+                    )
             db.session.add(p)
             db.session.commit()
 
@@ -484,10 +503,10 @@ class IntersPost(db.Model):
         用户插入的一些html标签可能是不安全的
         """
         allowed_tags = [
-            'a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
-            'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'img'
-        ]
+                'a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+                'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+                'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'img'
+                ]
         # 自动过滤其余标签
         target.body_html = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'),
@@ -496,14 +515,13 @@ class IntersPost(db.Model):
     def to_json(self):
         """json 格式的资源"""
         json_inters = {
-            'url': url_for("api.get_inters", id=self.id, _external=True),
+            'id': self.id,
             'title': self.title,
-            'body': self.body,
-            'body_html': self.body_html,
-            'author': url_for("api.get_user", id=self.author_id, _external=True),
-            'comments': url_for("api.get_inters_comments", id=self.id, _external=True),
-            'timestamp': self.timestamp
-        }
+            'content': self.body,
+            # 'body_html': self.body_html,
+            'writer': url_for("api.get_user", id=self.author_id, _external=True),
+            'date': self.timestamp
+            }
         return json_inters
 
     @staticmethod
@@ -517,18 +535,7 @@ db.event.listen(IntersPost.body, 'set', IntersPost.on_changed_body)
 
 
 class NewsComment(db.Model):
-    """
-    NewsComment类:
-
-        新闻评论类
-        id: 主键
-        body: 新闻评论的内容
-        body_html: 新闻评论的html形式
-        timestamp: 时间戳
-        disabled: ？什么时候会用到布尔值？？
-        author_id: 作者的id
-        news_id: 此评论对应的新闻文章的id
-    """
+    """ 新闻评论类 """
     __tablename__ = 'newsComments'
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.Text)
@@ -539,31 +546,32 @@ class NewsComment(db.Model):
 
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
-        """过滤html标签"""
+        """
+        过滤不安全的html标签
+        自动链接url
+        """
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i',
-                        'strong']
+                'strong']
         target.body_html = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
 
     def to_json(self):
         json_newsComment = {
-            'url': url_for('api.get_newscomment', id=self.id, _external=True),
-            'news': url_for('api.get_news', id=self.news_id, _external=True),
-            'body': self.body,
-            'body_html': self.body_html,
-            'timestamp': self.timestamp,
-            'author': url_for('api.get_user', id=self.author_id, _external=True),
-        }
+                'id': self.id,
+                'comment': self.body,
+                'date': self.timestamp,
+                'username': User.query.get_or_404(self.author_id).username,
+                'avatar': User.query.get_or_404(self.author_id).avatar_url
+                }
         return json_newsComment
 
     @staticmethod
     def from_json(json_newsComment):
-        body = json_newsComment.get('body')
+        body = json_newsComment.get('comment')
         if body is None or body == '':
-            raise ValidationError('评论不能为空哦!')
+            raise ValidationError('comment can not be empty! ')
         return NewsComment(body=body)
-
 
 db.event.listen(NewsComment.body, 'set', NewsComment.on_changed_body)
 
@@ -593,27 +601,26 @@ class OriginsComment(db.Model):
     def on_changed_body(target, value, oldvalue, initiator):
         """过滤html标签"""
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i',
-                        'strong']
+                'strong']
         target.body_html = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
 
     def to_json(self):
         json_originsComment = {
-            'url': url_for('api.get_originscomment', id=self.id, _external=True),
-            'origins': url_for('api.get_origins', id=self.news_id, _external=True),
-            'body': self.body,
-            'body_html': self.body_html,
-            'timestamp': self.timestamp,
-            'author': url_for('api.get_user', id=self.author_id, _external=True),
-        }
+            'id': self.id,
+            'comment': self.body,
+            'date': self.timestamp,
+            'avatar': User.query.get_or_404(self.author_id).avatar_url,
+            'username': User.query.get_or_404(self.author_id).username
+            }
         return json_originsComment
 
     @staticmethod
     def from_json(json_originsComment):
-        body = json_originsComment.get('body')
+        body = json_originsComment.get('comment')
         if body is None or body == '':
-            raise ValidationError('评论不能为空哦!')
+            raise ValidationError('comment can not be empty')
         return OriginsComment(body=body)
 
 db.event.listen(OriginsComment.body, 'set', OriginsComment.on_changed_body)
@@ -644,27 +651,26 @@ class IntersComment(db.Model):
     def on_changed_body(target, value, oldvalue, initiator):
         """过滤html标签"""
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i',
-                        'strong']
+                'strong']
         target.body_html = bleach.linkify(bleach.clean(
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
 
     def to_json(self):
         json_intersComment = {
-            'url': url_for('api.get_interscomment', id=self.id, _external=True),
-            'inters': url_for('api.get_inters', id=self.news_id, _external=True),
-            'body': self.body,
-            'body_html': self.body_html,
-            'timestamp': self.timestamp,
-            'author': url_for('api.get_user', id=self.author_id, _external=True),
-        }
+            'id': self.id,
+            'comment': self.body,
+            'date': self.timestamp,
+            'username': User.query.get_or_404(self.author_id).username,
+            'avatar': User.query.get_or_404(self.author_id).avatar_url
+            }
         return json_intersComment
 
     @staticmethod
     def from_json(json_intersComment):
-        body = json_intersComment.get('body')
+        body = json_intersComment.get('comment')
         if body is None or body == '':
-            raise ValidationError('评论不能为空哦!')
+            raise ValidationError('comment can not be empty')
         return IntersComment(body=body)
 
 db.event.listen(IntersComment.body, 'set', IntersComment.on_changed_body)

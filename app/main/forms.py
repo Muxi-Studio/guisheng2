@@ -1,26 +1,20 @@
-# -*- coding: UTF-8 -*-
-# !/usr/bin/python
-"""
-    forms.py
-    ~~~~~~~~
-        表单类文件
-"""
-
-from flask.ext.wtf import Form
-from flaskckeditor import CKEditor  # 使用Flask-CKEditor扩展
-from flask.ext.pagedown.fields import PageDownField
-from wtforms import StringField, TextAreaField, SubmitField
+# coding: utf-8
+from flask_wtf import Form
+from flaskckeditor import CKEditor
+from wtforms import PasswordField, StringField, SubmitField, TextAreaField
 from wtforms.validators import Required
 
 
-class PostForm(Form, CKEditor):
-    """提交表单类"""
-    title = PageDownField(validators=[Required()])
-    body = TextAreaField(validators=[Required()])
-    submit = SubmitField('提交')
+class LoginForm(Form):
+    """登录表单"""
+    email = StringField('邮箱', validators=[Required()])
+    password = PasswordField('密码', validators=[Required()])
+    submit = SubmitField('登录')
 
 
-class CommentForm(Form):
-    """评论表单类"""
-    body = StringField('>>', validators=[Required()])
+class EditForm(Form, CKEditor):
+    """新闻,原创,互动编辑器(ckeditor)"""
+    title = StringField('title', validators=[Required()])
+    post = TextAreaField('post', validators=[Required()])
     submit = SubmitField('提交')
+

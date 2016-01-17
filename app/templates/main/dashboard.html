@@ -1,0 +1,81 @@
+{% extends 'main/base1.html' %}
+    {% block content %}
+    <!-- Content -->
+      <div id='content'>
+        <div class='panel panel-default'>
+          <div class='panel-heading'>
+            <i class='icon-beer icon-large'></i>
+            GuiShengApp Rocks!
+            <div class='panel-tools'>
+              <div class='btn-group'>
+                <a class='btn' href='#'>
+                  <i class='icon-refresh'></i>
+                  Refresh statics
+                </a>
+                <a class='btn' data-toggle='toolbar-tooltip' href='#' title='Toggle'>
+                  <i class='icon-chevron-down'></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class='panel-body'>
+            <div class='progress'>
+              <div class='progress-bar progress-bar-success' style='width: 35%'></div>
+              <div class='progress-bar progress-bar-warning' style='width: 20%'></div>
+              <div class='progress-bar progress-bar-danger' style='width: 10%'></div>
+            </div>
+            <div class='page-header'>
+              <h2> 动态一览(最近一个月发布) </h2>
+            </div>
+            <div class='row text-center'>
+              <div class='col-md-3'>
+                <input class='knob second' data-bgcolor='#d4ecfd' data-fgcolor='#30a1ec' data-height='140' data-inputcolor='#333' data-thickness='.3' data-width='140' type='text' value='50'>
+                <h5> 新闻文章 </h5>
+              </div>
+              <div class='col-md-3'>
+                <input class='knob second' data-bgcolor='#c4e9aa' data-fgcolor='#8ac368' data-height='140' data-inputcolor='#333' data-thickness='.3' data-width='140' type='text' value='75'>
+                <h5> 原创图集 </h5>
+              </div>
+              <div class='col-md-3'>
+                <input class='knob second' data-bgcolor='#cef3f5' data-fgcolor='#5ba0a3' data-height='140' data-inputcolor='#333' data-thickness='.3' data-width='140' type='text' value='35'>
+                <h5> 互动话题 </h5>
+              </div>
+              <div class='col-md-3'>
+                <input class='knob second' data-bgcolor='#f8d2e0' data-fgcolor='#b85e80' data-height='140' data-inputcolor='#333' data-thickness='.3' data-width='140' type='text' value='85'>
+                <h5> 用户评论 </h5>
+              </div>
+            </div>
+            <hr>
+            <div class='form-group'>
+                <label class='control-label'><h4>[新闻文章]最近发布</h4></label>
+                <select class='form-control' multiple>
+                {% for new in news[::-1] %}
+                    <option>{{ new.title }}</option>
+                {% endfor %}
+                </select>
+            </div>
+            <div class='form-actions'>
+                <a class='btn btn-default' href={{ url_for('main.read', id=2) }}>阅读</a>
+                <button class="btn" type='submit'>删除</button>
+            </div>
+            <div class='form-group'>
+                <label class='control-label'><h4>[原创图集]最近发布</h4></label>
+                <select class='form-control' multiple>
+                {% for pic in pics[:50] %}
+                    <a href='#'><option>{{ pic.title }}</option></a>
+                {% endfor %}
+                </select>
+            </div>
+            <div class='form-group'>
+                <label class='control-label'><h4>[互动话题]最近发布</h4></label>
+                <select class='form-control' multiple>
+                {% for topic in topics[:50] %}
+                    <a href='#'><option>{{ topic.title }}</option></a>
+                {% endfor %}
+                </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}

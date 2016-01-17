@@ -22,19 +22,18 @@ from .decorators import permission_required
 from .errors import forbidden
 
 
-@api.route('/news')
+@api.route('/news/')
 def get_news():
     """获取新闻板块的文章(包括图片)"""
     page = request.args.get('page', 1, type = int)
     pagination = NewsPost.query.paginate(
-        page,  # show page one by default
-        per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-        error_out=False
-    )
+            page,
+            per_page=current_app.config['GUISHENGAPP_POSTS_PER_PAGE'],
+            error_out=False
+            )
     news = pagination.items
     prev = None
     if pagination.has_prev:
-        # automanticly generate url has ? query prameters
         prev = url_for('api.get_news', page=page-1, _external=True)
     next = None
     if pagination.has_next:
@@ -44,18 +43,18 @@ def get_news():
         'prev': prev,
         'next': next,
         'count': pagination.total
-    })
+        })
 
 
-@api.route('/origins')
+@api.route('/origins/')
 def get_origins():
     """获取原创板块的图集和文章"""
     page = request.args.get('page', 1, type=int)
     pagination = OriginsPost.query.paginate(
-        page,
-        per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-        error_out=False
-    )
+            page,
+            per_page=current_app.config['GUISHENGAPP_POSTS_PER_PAGE'],
+            error_out=False
+            )
     origins = pagination.items
     prev = None
     if pagination.has_prev:
@@ -68,17 +67,17 @@ def get_origins():
         'prev': prev,
         'next': next,
         'count': pagination.total
-    })
+        })
 
 
-@api.route('/inters')
+@api.route('/inters/')
 def get_inters():
     page = request.args.get('page', 1, type=int)
     pagination = IntersPost.query.paginate(
-        page,
-        per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-        error_out=False
-    )
+            page,
+            per_page=current_app.config['GUISHENGAPP_POSTS_PER_PAGE'],
+            error_out=False
+            )
     inters = pagination.items
     prev = None
     if pagination.has_prev:
@@ -91,10 +90,10 @@ def get_inters():
         'prev': prev,
         'next': next,
         'count': pagination.total
-    })
+        })
 
 
-@api.route('/news/<int:id>')
+@api.route('/news/<int:id>/')
 def get_news_id(id):
     """获取特定id的新闻文章,
        it is just a standard jsonify"""
@@ -102,22 +101,21 @@ def get_news_id(id):
     return jsonify(post.to_json())
 
 
-@api.route('/origins/<int:id>')
+@api.route('/origins/<int:id>/')
 def get_origins_id(id):
     """获取特定id的原创文章"""
     post = OriginsPost.query.get_or_404(id)
     return jsonify(post.to_json())
 
 
-@api.route('/inters/<int:id>')
+@api.route('/inters/<int:id>/')
 def get_inters_id(id):
     """获取特定id的互动文章"""
     post = IntersPost.query.get_or_404(id)
     return jsonify(post.to_json())
 
 
-@api.route('/news', methods=['POST', 'GET', 'OPTIONS'])
-# just use the decorater to control the user permission
+@api.route('/news/', methods=['POST', 'GET', 'OPTIONS'])
 @permission_required(Permission.WRITE_ARTICLES)
 def new_news():
     """post新闻文章集合"""
@@ -132,7 +130,7 @@ def new_news():
     return jsonify(post.to_json()), 201, {'Location': url_for('api.get_news', id=post.id, _external=True)}
 
 
-@api.route('/origins', methods=['POST', 'GET', 'OPTIONS'])
+@api.route('/origins/', methods=['POST', 'GET', 'OPTIONS'])
 @permission_required(Permission.WRITE_ARTICLES)
 def new_origins():
     """post原创文章集合"""
@@ -143,7 +141,7 @@ def new_origins():
     return jsonify(post.to_json()), 201, {'Location': url_for('api.get_origins', id=post.id, _external=True)}
 
 
-@api.route('/inters', methods=['POST'])
+@api.route('/inters/', methods=['POST'])
 @permission_required(Permission.WRITE_ARTICLES)
 def new_inters():
     """post互动文章集合"""
@@ -154,7 +152,7 @@ def new_inters():
     return jsonify(post.to_json()), 201, {'Location': url_for('api.get_inters', id=post.id, _external=True)}
 
 
-@api.route('/news/<int:id>', methods=['PUT'])
+@api.route('/news/<int:id>/', methods=['PUT'])
 @permission_required(Permission.WRITE_ARTICLES)
 def edit_news(id):
     """puts 特定id的新闻文章"""
@@ -167,7 +165,7 @@ def edit_news(id):
     return jsonify(post.to_json())
 
 
-@api.route('/origins/<int:id>', methods=['PUT'])
+@api.route('/origins/<int:id>/', methods=['PUT'])
 @permission_required(Permission.WRITE_ARTICLES)
 def edit_origins(id):
     """puts 特定id的原创文章"""
@@ -181,7 +179,7 @@ def edit_origins(id):
     return jsonify(post.to_json())
 
 
-@api.route('/inters/<int:id>', methods=['PUT'])
+@api.route('/inters/<int:id>/', methods=['PUT'])
 @permission_required(Permission.WRITE_ARTICLES)
 def edit_inters(id):
     """puts 特定id的互动文章"""

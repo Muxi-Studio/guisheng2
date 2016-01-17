@@ -1,10 +1,30 @@
-桂声
+[开始重构!!!] <br/>
+桂声APP后台
 ===
-[![testing](http://neo1218.github.io/img/coverage.svg)](https://github.com/neo1218/guisheng2/tree/master/tests)
 
     桂声APP后台开发版
     测试数据库
     测试API
+
+## Build
+### Virtual Environment
+
+    $ virtualenv venv
+    $ source venv/bin/activate
+
+### Install Extensions
+
+    $ pip install -r extensions.txt
+
+### Test Database
+
+    $ chmod 777 data.sh
+    $ ./data.sh
+
+### Run
+
+    $ python manage.py runserver (--help)
+
 
 ## 桂声API测试版文档
 ### 1. 预备
@@ -68,7 +88,12 @@
     issue #6: 评论API issue
     issue #4: 具体板块API issue
 
-### 8. LICENSE
+### 8. Test
+#### run test use makefile
+
+    make
+
+### 9. LICENSE
 
     MIT LICENSE
     see LICENSE for more details

@@ -7,7 +7,6 @@
 """
 
 import unittest
-import re
 from flask import url_for
 from app import create_app, db
 from app.models import Role, User
@@ -49,5 +48,4 @@ class FlaskClientTestCase(unittest.TestCase):
             'password':'test'
         }, follow_redirects = True)
         data = response.get_data(as_text=True)
-        # search with re: \s
-        self.assertTrue('新闻' in data)
+        self.assertTrue('原创' in data)

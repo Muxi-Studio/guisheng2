@@ -4,8 +4,8 @@
     authentication.py
     ~~~~~~~~~~~~~~~~~
 
-        API验证文件
-        we use flask-httpauth to authenticated my flask web API
+    API验证文件
+
 """
 
 from flask import g, jsonify
@@ -21,17 +21,18 @@ auth = HTTPBasicAuth()
 
 @auth.verify_password
 def verify_password(email_or_token, password):
-    """验证回调函数(可选：邮件或者令牌)"""
+    """ token 验证"""
     if email_or_token == '':
-        # this is AnonymousUser, don't have email or token
         g.current_user = AnonymousUser()
         return True
     if password == '':
-        # do not use password , use token!
+        # 使用token无须提供用户名和密码
         g.current_user = User.verify_auth_token(email_or_token)
         g.token_used = True
         return g.current_user is not None
 
+    # 否则使用email查询到用户
+    # 然后验证密码
     user = User.query.filter_by(email=email_or_token).first()
     if not user:
         return False
@@ -42,44 +43,36 @@ def verify_password(email_or_token, password):
 
 @api.before_request
 def before_request():
-    """run before the each request, and that's
-        all the route can get the login_required
-        and if you logged in, but you didn't have
-        confirmed account, and it will raise 403 error"""
-    # g.current_user = current_user
-    # if g.current_user.is_anonymous:
-    #    return forbidden('Unconfirmed account')
-    # 为了让匿名用户可以浏览信息, 所以这里取消了对匿名用户的限制
     pass
 
 
-"""error_handler decorater can help us generate json formate error easily"""
+"""
+error_handler decorater can help us generate json formate error easily
+"""
+# 403
 @auth.error_handler
 def auth_error():
-    """验证错误处理(json数据格式)"""
     return unauthorized('Invalid credentials')
 
+# 404
 @auth.error_handler
 def not_found_error():
     return not_found('Not found')
 
+# 500
 @auth.error_handler
 def server_error_error():
     return server_error('Server error')
 
 
-@api.route('/token', methods=["POST", "GET"])
+@api.route('/token/', methods=["POST", "GET"])
 @auth.login_required
 def get_token():
-    """token is just a serializer which include user info,
-       what you need do is log in the url, and post to the token url
-       get the token and use the token login, and that's, it is very
-       eazy to tell you(use id), but secret key needed"""
-    if g.token_used:
-        # that means you can not use token to get token
-        return unauthorized('Invalid credentials')
+    """ get token """
+    if isinstance(g.current_user, AnonymousUser) or g.token_used:
+        return unauthorized('Invalid credentials')  # => in json format
     return jsonify({
-        # use the serializer wrap the user id and secret_key
-        'token': g.current_user.generate_auth_token(),
-        'id': g.current_user.id
+        'token': g.current_user.generate_auth_token(3600),
+        'expiration': 3600,
+        'id' : g.current_user.id
     })
