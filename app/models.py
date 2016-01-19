@@ -13,11 +13,7 @@
 
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-<<<<<<< HEAD
-from itsdangerous import JSONWebSignatureSerializer as Serializer
-=======
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
->>>>>>> 42ca2786107ed5086652c88cd129d4ac46084221
 from flask import current_app, url_for
 from . import db, login_manager
 from markdown import markdown
@@ -137,13 +133,8 @@ class User(UserMixin, db.Model):
 
     @property
     def password(self):
-<<<<<<< HEAD
-        """password是只写属性，只能被转化为散列值,所以试图读取password时就会报错!"""
-        pass
-=======
         """ 无法读取password原始值 """
         raise AttributeError('无法读取密码明文!')
->>>>>>> 42ca2786107ed5086652c88cd129d4ac46084221
 
     @password.setter
     def password(self, password):
@@ -158,32 +149,6 @@ class User(UserMixin, db.Model):
         """
         return check_password_hash(self.password_hash, password)
 
-<<<<<<< HEAD
-    def generate_email_change_token(self, new_email):
-        # token 的应用
-        s = Serializer(current_app.config['SECRET_KEY'])
-        return s.dumps({'change_email': self.id, 'new_email': new_email})
-
-    def change_email(self, token):
-        """允许用户修改email(防止用户注册的时候输错email)"""
-        s = Serializer(current_app.config['SECRET_KEY'])
-        try:
-            data = s.loads(token)
-        except:
-            return False
-        if data.get('change_email') != self.id:
-            return False
-        new_email = data.get('new_email')
-        if new_email is None:
-            return False
-        if self.query.filter_by(email=new_email).first() is not None:
-            return False
-        self.email = new_email
-        db.session.add(self)
-        return True
-
-=======
->>>>>>> 42ca2786107ed5086652c88cd129d4ac46084221
     def can(self, permissions):
         """ 用户可以做什么 """
         return self.role is not None and \
@@ -193,33 +158,6 @@ class User(UserMixin, db.Model):
         """ 确定用户是不是管理员 """
         return self.can(Permission.ADMINISTER)
 
-<<<<<<< HEAD
-    def to_json(self):
-        """API 以json格式[提、存]数据"""
-        json_user = {
-            'url': url_for('api.get_news_id', id=self.id, _external=True),
-            'username': self.username,
-            'email': self.email,
-            'news': url_for('api.get_user_news', id=self.id, _external=True),
-            'origins': url_for('api.get_user_origins', id=self.id, _external=True),
-            'inters': url_for('api.get_user_inters', id=self.id, _external=True),
-        }
-        return json_user
-
-    """
-    token(令牌)是一种验证方式(一般和用户信息相关),他有寿命，我们只需在生成用户和密码时生成一个token和寿命期限,
-    在验证token时,在寿命期限内,token会变成纯文本密码,然后与数据库中存储进行比对
-
-    在传输过程中使用签名加密用户信息，前提是密钥不被泄漏
-    """
-    def generate_auth_token(self):
-        """用用户的id生成token"""
-        s = Serializer(
-            # 生成一个带寿命的jws
-            current_app.config["SECRET_KEY"]  # SECRET_KEY is really important
-        )
-        return s.dumps({'id': self.id}).decode('ascii')  # 签名json数据 {'id': self.id}
-=======
     def generate_auth_token(self, expiration):
         """ 生成验证token:验证字段id """
         s = Serializer(
@@ -227,7 +165,6 @@ class User(UserMixin, db.Model):
                 expiration
                 )
         return s.dumps({'id': self.id}).decode('ascii')
->>>>>>> 42ca2786107ed5086652c88cd129d4ac46084221
 
     @staticmethod
     def verify_auth_token(token):
