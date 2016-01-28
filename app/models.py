@@ -100,26 +100,6 @@ class User(UserMixin, db.Model):
     origins_comment = db.relationship('OriginsComment', backref="author", lazy="dynamic")
     inters_comment = db.relationship('IntersComment', backref="author", lazy="dynamic")
 
-    @staticmethod
-    def generate_fake(count=100):
-        """生成100虚拟数据"""
-        from sqlalchemy.exc import IntegrityError
-        from random import seed
-        import forgery_py
-
-        seed()
-        for i in range(count):
-            u = User(
-                email=forgery_py.internet.email_address(),
-                username=forgery_py.internet.user_name(True),
-                password=forgery_py.lorem_ipsum.word()
-                )
-            db.session.add(u)
-            try:
-                db.session.commit()
-            except IntegrityError:
-                db.session.rollback()
-
     def __init__(self, **kwargs):
         """ 设置用户权限 """
         super(User, self).__init__(**kwargs)
@@ -246,25 +226,6 @@ class NewsPost(db.Model):
     comments = db.relationship("NewsComment", backref="news", lazy="dynamic")
 
     @staticmethod
-    def generate_fake(count=100):
-        """生成新闻文章虚拟数据"""
-        from random import seed, randint
-        import forgery_py
-
-        seed()
-        user_count = User.query.count()
-        for i in range(count):
-            u = User.query.offset(randint(0, user_count - 1)).first()
-            p = NewsPost(
-                    title=forgery_py.lorem_ipsum.title(randint(1, 5)),
-                    body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
-                    timestamp=forgery_py.date.date(True),
-                    author=u
-                    )
-            db.session.add(p)
-            db.session.commit()
-
-    @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
         """
         使用bleach clean用户输入的markdown
@@ -330,28 +291,6 @@ class OriginsPost(db.Model):
     comments = db.relationship("OriginsComment", backref="origins", lazy="dynamic")  # backref的值待定(评论在这里比较特殊)
 
     @staticmethod
-    def generate_fake(count=100):
-        """
-        生成原创板块虚拟数据
-        由于生成的虚拟数据中并不包括图片,所以测试时需要自己上传图片到数据库中
-        """
-        from random import seed, randint
-        import forgery_py
-
-        seed()
-        user_count = User.query.count()
-        for i in range(count):
-            u = User.query.offset(randint(0, user_count - 1)).first()
-            p = OriginsPost(
-                    title=forgery_py.lorem_ipsum.title(randint(1, 5)),
-                    body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
-                    timestamp=forgery_py.date.date(True),
-                    author=u
-                    )
-            db.session.add(p)
-            db.session.commit()
-
-    @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
         """
         markdown 文本框中允许使用的html标签
@@ -410,28 +349,6 @@ class IntersPost(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     comments = db.relationship("IntersComment", backref="inters", lazy="dynamic")  # backref的值待定(评论在这里比较特殊)
-
-    @staticmethod
-    def generate_fake(count=100):
-        """
-        生成原创板块虚拟数据
-        由于生成的虚拟数据中并不包括图片,所以测试时需要自己上传图片到数据库中
-        """
-        from random import seed, randint
-        import forgery_py
-
-        seed()
-        user_count = User.query.count()
-        for i in range(count):
-            u = User.query.offset(randint(0, user_count - 1)).first()
-            p = IntersPost(
-                    title=forgery_py.lorem_ipsum.title(randint(1, 5)),
-                    body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
-                    timestamp=forgery_py.date.date(True),
-                    author=u
-                    )
-            db.session.add(p)
-            db.session.commit()
 
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):

@@ -31,6 +31,7 @@ from flask.ext.script import Manager, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
 from flask_admin import AdminIndexView, Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
+import base64
 import sys
 
 
@@ -124,7 +125,7 @@ def adduser(email, username):
         user = User(
             email=email,
             username=username,
-            password=password
+            password=base64.b64encode(password)
         )
         db.session.add(user)
         db.session.commit()

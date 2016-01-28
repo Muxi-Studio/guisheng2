@@ -88,3 +88,4 @@ def ckupload():
     form = EditForm()
     response = form.upload(endpoint=main)
     return response
+

@@ -10,7 +10,7 @@
             <!--script>
                 document.write({{ news.body_html }});
             </script-->
-            <h4>{{ news.body_html }}</h4>
+            <h4>{{ news.body_html | safe }}</h4>
         </div>
     </div>
 </div>
