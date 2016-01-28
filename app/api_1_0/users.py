@@ -58,7 +58,7 @@ def get_users():
 @auth.login_required
 def new_user():
     """ 注册一个用户 """
-    user = User.from_json(request.json)
+    user = User.from_json(request.get_json())
     db.session.add(user)
     db.session.commit()
     return jsonify(user.to_json()), 201
