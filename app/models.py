@@ -89,16 +89,16 @@ class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(64), unique=True, index=True)
-    username = db.Column(db.String(64), unique=True, index=True)
-    avatar_url = db.Column(db.String(64), index=True)
+    username = db.Column(db.String(164), unique=True, index=True)
+    avatar_url = db.Column(db.String(164), index=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password_hash = db.Column(db.String(128))
-    news = db.relationship('NewsPost', backref="author", lazy="dynamic")                    # 用户(编辑)发布的新闻
-    origins = db.relationship("OriginsPost", backref="author", lazy="dynamic")              # 用户(编辑)发布的原创
-    inters = db.relationship("IntersPost", backref="author", lazy="dynamic")                # 用户(编辑)发布的互动
-    news_comment = db.relationship('NewsComment', backref="author", lazy="dynamic")         # 用户(编辑)发布的新闻评论
-    origins_comment = db.relationship('OriginsComment', backref="author", lazy="dynamic")   # 用户(编辑)发布的原创评论
-    inters_comment = db.relationship('IntersComment', backref="author", lazy="dynamic")     # 用户(编辑)发布的互动评论
+    news = db.relationship('NewsPost', backref="author", lazy="dynamic")
+    origins = db.relationship("OriginsPost", backref="author", lazy="dynamic")
+    inters = db.relationship("IntersPost", backref="author", lazy="dynamic")
+    news_comment = db.relationship('NewsComment', backref="author", lazy="dynamic")
+    origins_comment = db.relationship('OriginsComment', backref="author", lazy="dynamic")
+    inters_comment = db.relationship('IntersComment', backref="author", lazy="dynamic")
 
     @staticmethod
     def generate_fake(count=100):
