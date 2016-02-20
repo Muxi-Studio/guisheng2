@@ -248,7 +248,7 @@ class NewsPost(db.Model):
         json_news = {
             'id': self.id,
             'title': self.title,
-            'content': self.body,
+            'content': self.body_html,
             # 'body_html': self.body_html,
             'writer': url_for("api.get_user", id=self.author_id, _external=True),
             'date': self.timestamp
